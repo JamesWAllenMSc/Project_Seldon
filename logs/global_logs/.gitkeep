@@ -1,0 +1,28 @@
+"""
+Global System Logs
+================
+
+"For twelve thousand years the Galactic Empire had been the symbol of all 
+human kind united... So it was with our global financial systems, whose 
+daily movements we track within these logs."
+
+Purpose:
+--------
+- Records global market events
+- Tracks system-wide operations
+- Stores exchange connectivity status
+- Maintains audit trail of global data flows
+
+Directory Structure:
+------------------
+/global_logs
+  ├── market_events/      # Major market movements
+  ├── exchange_status/    # Exchange connectivity logs
+  └── data_flows/        # Cross-border data transfer logs
+
+Note: This directory is preserved in git through this file.
+
+"The larger the mass of humanity being dealt with, the greater 
+the accuracy of psychohistorical predictions."
+- Second Foundation Theorem
+"""
