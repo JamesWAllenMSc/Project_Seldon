@@ -1,54 +1,46 @@
-from mysql.connector import connect
-from mysql.connector import Error
-import logging
-import pandas as pd
+from contextlib import contextmanager
+from mysql.connector import connect, Error
+from lib.data_centre.database.config.database_logging_config import logger
 
 
-def execute_query(access, query):
-    """ Takes database access credentials and an sql query and executes
-    the query in the specified database.
-    """
-    
+@contextmanager
+def db_connection(access):
+    """Creates and manages database connections automatically."""
+    conn = None
     try:
-        with connect(
-            host = access['host'],
-            user = access['user'],
-            password = access['password'],
-            database = access['database'],
-            port = access['port']
-            
-        ) as connection:
-            with connection.cursor() as cursor:
-                cursor.execute(query)
-                connection.commit()
-            logging.debug(f"Execution complete for query: {query}")
-            
-    except Error as e:
-        logging.error(e, exc_info=True)
-
-
-def retrieve_table(access, query):
-    """ Takes access credentials and query and returns table as list of tuples
-    --------------------------------------------------------------------------
-    """
-    try:
-        with connect(
+        conn = connect(
             host=access['host'],
             user=access['user'],
             password=access['password'],
             database=access['database'],
-            port=access['port'],         
-        ) as connection:
-            logging.debug("Connection to database succesful...")
-            with connection.cursor() as cursor:
-                cursor.execute(query)
-                table = cursor.fetchall()
-            logging.debug(f"Execution complete for query: {query}")
-            return table
-            
+            port=access['port']
+        )
+        yield conn.cursor()
+        conn.commit()
     except Error as e:
-        logging.error(e, exc_info=True)
+        if conn:
+            conn.rollback()
+        logger.error(f"Database error: {str(e)}")
+        raise
+    finally:
+        if conn:
+            conn.close()
 
+
+def execute_query(access, query):
+    """Executes a SQL query using the database connection."""
+    with db_connection(access) as cursor:
+        cursor.execute(query)
+        logger.debug(f"Execution complete for query: {query}")
+
+
+def retrieve_table(access, query):
+    """Takes access credentials and query and returns table as list of tuples."""
+    with db_connection(access) as cursor:
+        cursor.execute(query)
+        table = cursor.fetchall()
+        logger.debug(f"Execution complete for query: {query}")
+        return table
 
 
 def add_stock_price(global_price_df, exchange, year, access):
@@ -66,7 +58,7 @@ def add_stock_price(global_price_df, exchange, year, access):
     # ADD STOCK PRICES TO SELDON_DB
     add_record_query = f'INSERT INTO prices_{exchange}_{year} ({columns}) VALUES {global_prices};'
     execute_query(access, add_record_query)
-    logging.debug(f"Global prices added to seldon_db")
+    logger.debug(f"Global prices added to seldon_db")
 
 
 
@@ -101,7 +93,7 @@ def clear_all_tables(access):
     get_table_list_query = "SHOW TABLES;"
     table_list = retrieve_table(access, get_table_list_query)
     if len(table_list) == 0:
-        logging.info("No tables to drop")
+        logger.info("No tables to drop")
         return
     table_list = [item[0] for item in table_list] # Convert list of tuples to list of strings
     table_count = 0
@@ -110,5 +102,5 @@ def clear_all_tables(access):
         drop_table_query = f'DROP TABLE IF EXISTS {table}'
         execute_query(access, drop_table_query) 
         table_count += 1
-        logging.debug(f"Table {table} dropped")
-    logging.info(f"Tables dropped: {table_count}")
+        logger.debug(f"Table {table} dropped")
+    logger.info(f"Tables dropped: {table_count}")

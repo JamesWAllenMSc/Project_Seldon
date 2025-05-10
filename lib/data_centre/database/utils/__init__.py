@@ -1,5 +1,4 @@
-"""
-Database utility functions for Project Seldon.
+""" Database utility functions for Project Seldon.
 Provides common database operations and helper functions.
 """
 
