@@ -1,7 +1,9 @@
 from contextlib import contextmanager
 from mysql.connector import connect, Error
 from lib.data_centre.database.config.database_logging_config import logger
-
+from lib.data_centre.database.config.database_config import TABLE_SCHEMA
+# Third-party imports
+import pandas as pd
 
 @contextmanager
 def db_connection(access):
@@ -86,21 +88,64 @@ def reset_price_tables(access):
         execute_query(access, create_prices_table_query) 
 
 
-
-def clear_all_tables(access):
-    """ Takes access credentials and clears all tables in the database
-    """
-    get_table_list_query = "SHOW TABLES;"
-    table_list = retrieve_table(access, get_table_list_query)
-    if len(table_list) == 0:
-        logger.info("No tables to drop")
-        return
-    table_list = [item[0] for item in table_list] # Convert list of tuples to list of strings
-    table_count = 0
+def clear_all_tables(access: dict) -> None:
+    """Clear all tables from the database.
     
-    for table in table_list:
-        drop_table_query = f'DROP TABLE IF EXISTS {table}'
-        execute_query(access, drop_table_query) 
-        table_count += 1
-        logger.debug(f"Table {table} dropped")
-    logger.info(f"Tables dropped: {table_count}")
+    Args:
+        access: Database connection configuration dictionary
+        
+    Returns:
+        None
+        
+    Raises:
+        mysql.connector.Error: If database operations fail
+    """
+    try:
+        # Get list of all tables
+        tables = retrieve_table(access, "SHOW TABLES;")
+        
+        if not tables:
+            logger.info("No tables to drop")
+            return
+            
+        # Extract table names and drop each table
+        table_names = [table[0] for table in tables]
+        for table in table_names:
+            execute_query(access, f"DROP TABLE IF EXISTS {table};")
+            logger.debug(f"Dropped table: {table}")
+            
+        logger.info(f"Successfully dropped {len(table_names)} tables")
+        
+    except Error as e:
+        logger.error("Failed to clear tables", exc_info=True)
+        raise
+
+
+def clear_all_views(access: dict) -> None:
+    """Clear all views in the database.
+    
+    Args:
+        access: Database connection configuration dictionary
+    """
+    query = """
+        SELECT TABLE_NAME 
+        FROM INFORMATION_SCHEMA.VIEWS 
+        WHERE TABLE_SCHEMA = DATABASE();
+    """
+    
+    try:
+        views = retrieve_table(access, query)
+        if not views:
+            logger.info("No views to clear")
+            return
+            
+        view_names = [view[0] for view in views]
+        for view in view_names:
+            execute_query(access, f"DROP VIEW IF EXISTS {view};")
+            logger.debug(f"Dropped view: {view}")
+            
+        logger.info(f"Successfully cleared {len(view_names)} views")
+            
+    except Error as e:
+        logger.error("Failed to clear views", exc_info=True)
+        raise

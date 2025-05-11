@@ -1,91 +1,125 @@
-""" Utilities and function to interact with EODHD API
+"""EODHD API Integration Module
+
+This module provides utilities for interacting with the EODHD API,
+handling data retrieval and transformation for exchanges, tickers, and price data.
 """
 
-# Set sys.path modification
-from config.database_config import PATHS
-project_root = PATHS['DATABASE']
-
-# Standard library imports
+from typing import Optional, Dict, Any
 import datetime
+from dataclasses import dataclass
 
-# Third-party imports
 import pandas as pd
 import requests
 
-# Local application imports
-# from config.eodhd_access_config import EODHD_CONFIG['api_key'] as eodhd_api
 from lib.data_centre.database.config.database_logging_config import logger
 
-""""
-import logging
+# Constants
+PRICE_COLUMNS = [
+    'Ticker_ID', 'Date', 'Open', 'High', 'Low', 
+    'Close', 'Adjusted_Close', 'Volume'
+]
+
+US_EXCHANGES = {
+    'NYSE': {
+        'Name': 'New York Stock Exchange',
+        'OperatingMIC': 'XNYS',
+        'Country': 'US',
+        'Currency': 'USD',
+        'CountryISO2': 'US',
+        'CountryISO3': 'USA',
+    },
+    'NASDAQ': {
+        'Name': 'NASDAQ',
+        'OperatingMIC': 'XNAS',
+        'Country': 'US',
+        'Currency': 'USD',
+        'CountryISO2': 'US',
+        'CountryISO3': 'USA',
+    }
+}
 
 
-# Standard library imports
-import sys
-from pathlib import Path
+@dataclass
+class APIEndpoints:
+    """EODHD API endpoint configurations."""
+    BASE_URL = "https://eodhd.com/api"
+    EXCHANGES = f"{BASE_URL}/exchanges-list"
+    TICKERS = f"{BASE_URL}/exchange-symbol-list"
+    HISTORICAL = f"{BASE_URL}/eod"
+    DAILY = f"{BASE_URL}/eod-bulk-last-day"
 
-# Third-party imports
-from mysql.connector import connect, Error
 
-from utils import database_utils
-from scripts import exchanges_update
-from lib.data_centre.database.scripts import exchanges_update
-"""
-
-def retrieve_tickers(eodhd_api, exchange):
-    """ Takes api credentials for eodhd.com and a target exchange and returns a pandas dataframe containing 
-    all tickers from the target exchange
-    """
-    url = f'https://eodhd.com/api/exchange-symbol-list/{exchange}?api_token={eodhd_api}&fmt=json'
+def _make_api_request(url: str) -> Optional[Dict[str, Any]]:
+    """Make API request with error handling."""
     try:
-        ticker_data = requests.get(url).json()
+        response = requests.get(url)
+        response.raise_for_status()
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        logger.error(f"API request failed: {e}", exc_info=True)
+        return None
 
-        # Check if response is empty or invalid
-        if not ticker_data or not isinstance(ticker_data, list):
-            return None
 
-        ticker_data = pd.DataFrame(ticker_data)
-        ticker_data['Source'] = f'EoDHD.com - Exchange {exchange}' # Adds Source column
-        ticker_data['Date_Updated'] = datetime.datetime.now() # Adds timestamp
-        id = ticker_data['Code']+f'_{exchange}'
-        ticker_data['Ticker_ID'] = id
-        ticker_columns = ['Ticker_ID', 'Code', 'Name', 'Country', 'Exchange',
-                        'Currency', 'Type', 'Isin', 'Source',
-                        'Date_Updated']
-        ticker_data = ticker_data[ticker_columns]
-        return ticker_data
-    except Exception as e:
-        logger.error(f'Exchange: {exchange} -  {e}', exc_info=True)
+def retrieve_tickers(api_key: str, exchange: str) -> Optional[pd.DataFrame]:
+    """Retrieve ticker data for a specific exchange.
     
-          
-
-def retrieve_exchanges(eodhd_api):
-    """ Takes api credentials for eodhd.com and returns full list of available exchanges
+    Args:
+        api_key: EODHD API key
+        exchange: Exchange code
+    
+    Returns:
+        DataFrame containing ticker data or None if request fails
     """
+    url = f"{APIEndpoints.TICKERS}/{exchange}?api_token={api_key}&fmt=json"
+    data = _make_api_request(url)
+    if not data or not isinstance(data, list):
+        return None
+        
     try:
-        url = f'https://eodhd.com/api/exchanges-list/?api_token={eodhd_api}&fmt=json'
-        exc_data = requests.get(url).json()
-        exc_data = pd.DataFrame(exc_data)
-        # exc_data = exc_data[exc_data['Name'] != 'USA Stocks'] # Removing grouped US stocks
-        exc_data['Source'] = 'EoDHD.com' # Adds Source column
-        exc_data['Date_Updated'] = datetime.datetime.now() # Adds timestampus_stocks = pd.DataFrame.from_dict({
-        # Add in individual US exchanges
-        us_stocks = pd.DataFrame.from_dict({
-            'Name':['New York Stock Exchange', 'NASDAQ'],
-            'Code':['NYSE', 'NASDAQ'],
-            'OperatingMIC':['XNYS', 'XNAS'],
-            'Country':['US', 'US'],
-            'Currency':['USD', 'USD'],
-            'CountryISO2':['US', 'US'],
-            'CountryISO3':['USA', 'USA'],
-            'Source':['Manual_Input', 'Manual_Input'],
-            'Date_Updated':[datetime.datetime.now(), datetime.datetime.now()]
-        })
-        exc_data = pd.concat([exc_data, us_stocks], ignore_index=True)
-        return(exc_data)
+        df = pd.DataFrame(data)
+        df['Source'] = f'EoDHD.com - Exchange {exchange}'
+        df['Date_Updated'] = datetime.datetime.now()
+        df['Ticker_ID'] = df['Code'] + f'_{exchange}'
+        
+        return df[['Ticker_ID', 'Code', 'Name', 'Country', 'Exchange',
+                  'Currency', 'Type', 'Isin', 'Source', 'Date_Updated']]
     except Exception as e:
-        logger.error(e, exc_info=True)
+        logger.error(f"Failed to process ticker data for {exchange}: {e}")
+        return None
+
+
+def retrieve_exchanges(api_key: str) -> Optional[pd.DataFrame]:
+    """Retrieve all available exchanges with US exchange handling.
     
+    Args:
+        api_key: EODHD API key
+    
+    Returns:
+        DataFrame containing exchange data or None if request fails
+    """
+    url = f"{APIEndpoints.EXCHANGES}/?api_token={api_key}&fmt=json"
+    data = _make_api_request(url)
+    
+    if not data:
+        return None
+        
+    try:
+        # Process EODHD exchanges
+        df = pd.DataFrame(data)
+        df['Source'] = 'EoDHD.com'
+        df['Date_Updated'] = datetime.datetime.now()
+        
+        # Add US exchanges
+        us_exchanges = pd.DataFrame([
+            {**exchange_data, 'Code': code, 'Source': 'Manual_Input', 
+             'Date_Updated': datetime.datetime.now()}
+            for code, exchange_data in US_EXCHANGES.items()
+        ])
+        
+        return pd.concat([df, us_exchanges], ignore_index=True)
+    except Exception as e:
+        logger.error(f"Failed to process exchange data: {e}", exc_info=True)
+        return None
 
 
 def retrieve_historical_price(exchange, ticker, date_to, eodhd_api):
@@ -97,6 +131,9 @@ def retrieve_historical_price(exchange, ticker, date_to, eodhd_api):
     try:
         price_data = requests.get(url).json()
         price_data = pd.DataFrame(price_data)
+        if price_data.empty:
+            logger.debug(f"No data returned for Ticker: {ticker} on Exchange: {exchange}")
+            return None
         id = f'{eod_ticker}'.replace('.', '_')  # Replace '.' with '_' to create a valid Ticker_ID
         price_data['Ticker_ID'] = id
         price_data_columns = ['Date', 'Open', 'High', 'Low', 'Close', 'Adjusted_Close',
@@ -108,27 +145,3 @@ def retrieve_historical_price(exchange, ticker, date_to, eodhd_api):
         return price_data
     except Exception as e:
         logger.error(f'Updating historical price data -Ticker: {ticker} -  {e}')
-
-
-
-def retrieve_daily_price(exchange, eodhd_api):
-    """ Takes exchenge and api credentials for eodhd.com and returns a pandas dataframe containing
-    all daily prices for the target exchange
-    """
-    url = f'https://eodhd.com/api/eod-bulk-last-day/{exchange}?api_token={eodhd_api}&fmt=json'
-    try:
-        price_data = requests.get(url).json()
-        price_data = pd.DataFrame(price_data)
-        id = price_data['code']+f'_{exchange}'  # Create Ticker_ID
-        price_data['Ticker_ID'] = id
-        price_data = price_data.drop(columns=['code', 'exchange_short_name'])
-        price_data_columns = ['Date', 'Open', 'High', 'Low', 'Close', 'Adjusted_Close',
-                        'Volume', 'Ticker_ID'] 
-        price_data.columns = price_data_columns[:len(price_data.columns)]
-        price_data_columns_order = ['Ticker_ID', 'Date', 'Open', 'High', 'Low', 'Close', 'Adjusted_Close',
-                        'Volume'] # Rearranging columns
-        price_data = price_data[price_data_columns_order] # Specyfying column order to support db upload
-        
-        return price_data
-    except Exception as e:
-        logger.error(f'Updating daily price data -Exchange: {exchange}')

@@ -15,6 +15,7 @@ PATHS = {
     #"OUTPUT_DIR": PROJECT_ROOT / "output",
 }
 
+TABLE_SCHEMA = 'project_seldon_dev'
 
 
 # Add project root to system path if not already present
