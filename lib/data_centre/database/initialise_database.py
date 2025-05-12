@@ -20,9 +20,9 @@ from lib.data_centre.database.scripts import exchanges_update, tickers_update, p
 project_root = PATHS['DATABASE']
 
 # Main initialization
-#database_utils.clear_all_tables(DB_CONFIG) # Clears all database tables
-#exchanges_update(DB_CONFIG) # Updates the exchanges table
-#tickers_update()
-#populate_price_history()
+database_utils.clear_all_tables(DB_CONFIG) # Clears all database tables
+exchanges_update(DB_CONFIG) # Updates the exchanges table
+tickers_update()
+populate_price_history()
 database_utils.clear_all_views(DB_CONFIG) # Clears all database tables
 update_all_views(DB_CONFIG) # Updates all views

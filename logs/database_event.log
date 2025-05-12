@@ -1,23 +1,15 @@
-Datetime:2025-05-11 22:30:43,159 - Level:INFO - Module:database_utils - Function:clear_all_tables - Message:Successfully dropped 19 tables
-Datetime:2025-05-11 22:30:43,899 - Level:INFO - Module:exchanges_update - Function:exchanges_update - Message:Added 2 new exchanges to database
-Datetime:2025-05-11 22:30:45,347 - Level:INFO - Module:tickers_update - Function:tickers_update - Message:Added 83 new tickers to database
-Datetime:2025-05-11 22:31:44,292 - Level:INFO - Module:populate_price_history - Function:populate_price_history - Message:Updated 15/59 historical prices for IR
-Datetime:2025-05-11 22:32:03,257 - Level:INFO - Module:populate_price_history - Function:populate_price_history - Message:Updated 0/24 historical prices for LUSE
-Datetime:2025-05-11 22:32:03,297 - Level:INFO - Module:database_utils - Function:clear_all_views - Message:No views to clear
-Datetime:2025-05-11 22:32:03,351 - Level:ERROR - Module:database_utils - Function:db_connection - Message:Database error: 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near '' at line 1
-Datetime:2025-05-11 22:32:03,352 - Level:ERROR - Module:update_views - Function:update_close_price_view - Message:Error creating view IR_close_price: 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near '' at line 1
-Datetime:2025-05-11 22:35:45,072 - Level:INFO - Module:database_utils - Function:clear_all_tables - Message:Successfully dropped 19 tables
-Datetime:2025-05-11 22:35:45,830 - Level:INFO - Module:exchanges_update - Function:exchanges_update - Message:Added 2 new exchanges to database
-Datetime:2025-05-11 22:35:47,176 - Level:INFO - Module:tickers_update - Function:tickers_update - Message:Added 83 new tickers to database
-Datetime:2025-05-11 22:36:47,916 - Level:INFO - Module:populate_price_history - Function:populate_price_history - Message:Updated 15/59 historical prices for IR
-Datetime:2025-05-11 22:37:03,444 - Level:INFO - Module:populate_price_history - Function:populate_price_history - Message:Updated 0/24 historical prices for LUSE
-Datetime:2025-05-11 22:37:03,471 - Level:INFO - Module:database_utils - Function:clear_all_views - Message:No views to clear
-Datetime:2025-05-11 22:37:03,549 - Level:INFO - Module:update_views - Function:update_close_price_view - Message:View IR_close_price created successfully.
-Datetime:2025-05-11 22:37:03,592 - Level:ERROR - Module:database_utils - Function:db_connection - Message:Database error: 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near '' at line 1
-Datetime:2025-05-11 22:37:03,593 - Level:ERROR - Module:update_views - Function:update_close_price_view - Message:Error creating view LUSE_close_price: 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near '' at line 1
-Datetime:2025-05-11 22:42:09,970 - Level:ERROR - Module:database_utils - Function:db_connection - Message:Database error: 1146 (42S02): Table 'project_seldon_dev.IR_close_price' doesn't exist
-Datetime:2025-05-11 22:42:09,970 - Level:ERROR - Module:update_views - Function:update_close_price_view - Message:Error creating view IR_close_price: 1146 (42S02): Table 'project_seldon_dev.IR_close_price' doesn't exist
-Datetime:2025-05-11 22:44:34,385 - Level:INFO - Module:database_utils - Function:clear_all_views - Message:Successfully cleared 1 views
-Datetime:2025-05-11 22:44:34,451 - Level:INFO - Module:update_views - Function:update_close_price_view - Message:View IR_close_price created successfully.
-Datetime:2025-05-11 22:44:34,501 - Level:ERROR - Module:database_utils - Function:db_connection - Message:Database error: 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near '' at line 1
-Datetime:2025-05-11 22:44:34,501 - Level:ERROR - Module:update_views - Function:update_close_price_view - Message:Error creating view LUSE_close_price: 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near '' at line 1
+Datetime:2025-05-12 17:48:38,874 - Level:INFO - Module:database_utils - Function:clear_all_tables - Message:Successfully dropped 20 tables
+Datetime:2025-05-12 17:48:39,704 - Level:INFO - Module:exchanges_update - Function:exchanges_update - Message:Added 2 new exchanges to database
+Datetime:2025-05-12 17:48:41,228 - Level:INFO - Module:tickers_update - Function:tickers_update - Message:Added 83 new tickers to database
+Datetime:2025-05-12 17:49:35,386 - Level:INFO - Module:populate_price_history - Function:populate_price_history - Message:Updated 15/59 historical prices for IR
+Datetime:2025-05-12 17:49:53,577 - Level:INFO - Module:populate_price_history - Function:populate_price_history - Message:Updated 0/24 historical prices for LUSE
+Datetime:2025-05-12 17:49:53,608 - Level:INFO - Module:database_utils - Function:clear_all_views - Message:Successfully cleared 1 views
+Datetime:2025-05-12 17:49:53,639 - Level:WARNING - Module:update_views - Function:update_close_price_view - Message:No tables found for exchange LUSE.
+Datetime:2025-05-12 17:49:53,639 - Level:INFO - Module:update_views - Function:update_close_price_view - Message:Checked 2 exchanges, created 1 views. Unable to create views for exchanges: ['LUSE'].
+Datetime:2025-05-12 18:10:46,941 - Level:INFO - Module:database_utils - Function:clear_all_tables - Message:Successfully dropped 21 tables
+Datetime:2025-05-12 18:10:47,709 - Level:INFO - Module:exchanges_update - Function:exchanges_update - Message:Added 2 new exchanges to database
+Datetime:2025-05-12 18:10:49,239 - Level:INFO - Module:tickers_update - Function:tickers_update - Message:Added 83 new tickers to database
+Datetime:2025-05-12 18:11:43,902 - Level:INFO - Module:populate_price_history - Function:populate_price_history - Message:Updated 15/59 historical prices for IR
+Datetime:2025-05-12 18:12:01,759 - Level:INFO - Module:populate_price_history - Function:populate_price_history - Message:Updated 0/24 historical prices for LUSE
+Datetime:2025-05-12 18:12:01,793 - Level:INFO - Module:database_utils - Function:clear_all_views - Message:Successfully cleared 1 views
+Datetime:2025-05-12 18:12:01,820 - Level:INFO - Module:update_views - Function:update_close_price_view - Message:Checked 2 exchanges, created 1 views. Unable to create views for exchanges: ['LUSE']
