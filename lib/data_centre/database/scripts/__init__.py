@@ -16,6 +16,9 @@ from .update_views import (
     update_all_views,
 )
 
+from .daily_price_update import (
+    daily_price_update,
+)
 
 # Define what should be available when using "from scripts import *"
 __all__ = [
@@ -25,5 +28,6 @@ __all__ = [
     'update_views',
     'update_close_price_view',
     'update_all_views',
+    'daily_price_update',
     
 ]

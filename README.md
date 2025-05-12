@@ -13,6 +13,8 @@ Project Seldon is a robust financial data management system that retrieves, proc
 - 📝 Comprehensive logging system
 - 🔌 Modular plugin architecture
 - 🛡️ Robust error handling
+- 📅 Daily price updates
+- 🔍 Historical data retrieval
 
 ## Architecture
 
@@ -32,7 +34,6 @@ Project_Seldon/
 ### Database Schema
 
 #### Global Exchanges
-Stores information about stock exchanges worldwide.
 ```sql
 CREATE TABLE global_exchanges (
     Name VARCHAR(255),
@@ -49,7 +50,6 @@ CREATE TABLE global_exchanges (
 ```
 
 #### Global Tickers
-Maintains comprehensive ticker data across all exchanges.
 ```sql
 CREATE TABLE global_tickers (
     Ticker_ID VARCHAR(255),
@@ -66,60 +66,88 @@ CREATE TABLE global_tickers (
 );
 ```
 
+#### Price Tables
+```sql
+CREATE TABLE prices_{exchange}_{year} (
+    Ticker_ID VARCHAR(255),
+    Date DATE,
+    Open DECIMAL(20,6),
+    High DECIMAL(20,6),
+    Low DECIMAL(20,6),
+    Close DECIMAL(20,6),
+    Adjusted_Close DECIMAL(20,6),
+    Volume BIGINT
+);
+```
+
 ## Technical Details
 
-### Data Processing Pipeline
-1. **Exchange Updates**
-   - Retrieves global exchange data
-   - Validates data structure
-   - Updates database records
-   - Tracks changes
+### Recent Code Improvements
+1. **API Integration**
+   - Added context managers for API requests
+   - Implemented API endpoint dataclass
+   - Enhanced error handling for API calls
+   - Added retry logic for failed requests
 
-2. **Ticker Management**
-   - Fetches ticker data per exchange
-   - Handles missing data
-   - Validates data integrity
-   - Updates global ticker database
+2. **Data Processing**
+   - Standardized DataFrame column orders
+   - Added data validation checks
+   - Improved error recovery
+   - Enhanced data transformation utilities
 
-3. **Price History**
-   - Retrieves historical price data
-   - Processes data by year
-   - Maintains separate price tables
-   - Handles data gaps
+3. **Database Operations**
+   - Implemented connection pooling
+   - Added transaction management
+   - Enhanced query performance
+   - Improved error handling
 
-### Logging System
-- Structured log format
-- Multiple output handlers
-- Configurable log levels
-- Automatic rotation
-- Error tracking
+4. **Logging System**
+   - Added structured logging
+   - Implemented log rotation
+   - Enhanced error tracking
+   - Added debug logging
 
-### Error Handling
-- Comprehensive exception management
-- Automatic retry logic
-- Data validation checks
-- Detailed error logging
-- Recovery procedures
+### New Features
+1. **Daily Price Updates**
+   - Automated daily data retrieval
+   - Intelligent update checking
+   - Gap detection and filling
+   - Performance optimization
 
-## Recent Updates
+2. **Historical Data**
+   - Year-based table partitioning
+   - Efficient data storage
+   - Historical gap filling
+   - Data validation
 
-### Code Improvements
-- ✅ Implemented database connection context managers
-- ✅ Added comprehensive logging system
+3. **Exchange Management**
+   - Enhanced exchange filtering
+   - Special handling for US markets
+   - Currency conversion support
+   - Market hours tracking
+
+## Updates Log
+
+### May 2025
+- ✅ Added daily price update automation
+- ✅ Implemented API endpoint dataclass
 - ✅ Enhanced error handling
-- ✅ Added type hints
-- ✅ Reorganized module structure
-- ✅ Implemented data validation
-- ✅ Added utility functions
+- ✅ Improved data validation
+- ✅ Added connection pooling
+- ✅ Enhanced logging system
+- ✅ Optimized database queries
+- ✅ Added market hours tracking
 
-### Data Processing
-- ✅ Added exchange filtering
-- ✅ Implemented ticker validation
-- ✅ Enhanced data transformation
-- ✅ Improved error recovery
-- ✅ Optimized database operations
+### Future Plans
+- 🔄 Add real-time price updates
+- 🔍 Implement data analytics module
+- 📊 Add visualization tools
+- 🔐 Enhance security features
+- 📱 Create API endpoints
+- 🤖 Add automation tools
 
 ## Author
 **James Allen**  
 Twitter: [@JamesAllenMSc](https://twitter.com/JamesAllenMSc)  
-Creation Date: May 8, 2025
+Creation Date: May 8, 2025  
+Last Updated: May 12, 2025
