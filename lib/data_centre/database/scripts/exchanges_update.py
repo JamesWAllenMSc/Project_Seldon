@@ -15,9 +15,9 @@ import numpy as np
 import pandas as pd
 
 # Local application imports
-from config.database_config import PATHS
-from config.eodhd_access_config import EODHD_CONFIG
-from utils import eodhd_utils, database_utils
+from lib.data_centre.database.config.database_config import PATHS
+from lib.data_centre.database.config.eodhd_access_config import EODHD_CONFIG
+from lib.data_centre.database.utils import eodhd_utils, database_utils
 from lib.data_centre.database.config.database_logging_config import logger
 
 
@@ -97,7 +97,7 @@ def _find_missing_exchanges(eod_data: pd.DataFrame, db_data: pd.DataFrame) -> pd
         DataFrame containing missing exchanges
     """
     eod_codes = eod_data['Code']
-    eod_codes = pd.Series(['IR', 'LUSE', 'USA Stocks']) # TESTING ONLY REMOVE AT DEPLOYMENT
+    # eod_codes = pd.Series(['IR', 'LUSE', 'USA Stocks']) # TESTING ONLY REMOVE AT DEPLOYMENT
     db_codes = db_data['Code']
     stacked_codes = pd.concat([eod_codes, db_codes], axis=0)
     missing_codes = stacked_codes.drop_duplicates(keep=False)

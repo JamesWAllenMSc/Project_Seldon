@@ -3,7 +3,7 @@ import sys
 from pathlib import Path
 
 # Get the project root directory (3 levels up from this file)
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent.parent.parent
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
 PATHS = {
     "PROJECT_ROOT": PROJECT_ROOT,
@@ -14,9 +14,6 @@ PATHS = {
     #"DATA_DIR": PROJECT_ROOT / "data",
     #"OUTPUT_DIR": PROJECT_ROOT / "output",
 }
-
-TABLE_SCHEMA = 'project_seldon_prod'
-
 
 # Add project root to system path if not already present
 if str(PROJECT_ROOT) not in sys.path:

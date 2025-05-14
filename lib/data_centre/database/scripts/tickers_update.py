@@ -13,10 +13,10 @@ import numpy as np
 import pandas as pd
 
 # Local application imports
-from utils import database_utils, eodhd_utils
+from lib.data_centre.database.utils import database_utils, eodhd_utils
 from lib.data_centre.database.config.database_logging_config import logger
-from config.database_access_config import DB_CONFIG
-from config.eodhd_access_config import EODHD_CONFIG
+from lib.data_centre.database.config.database_access_config import DB_CONFIG
+from lib.data_centre.database.config.eodhd_access_config import EODHD_CONFIG
 
 # Constants
 TICKER_COLUMNS = [

@@ -8,11 +8,14 @@
 from pathlib import Path
 import time
 
+# Set sys.path modification
+from lib.data_centre.database.config.database_config import PATHS
+project_root = PATHS['DATABASE']
+
 # Local application imports
-from config.database_config import PATHS
 from lib.data_centre.database.scripts import daily_price_update
 from lib.data_centre.database.config.database_logging_config import logger
-from config.database_access_config import DB_CONFIG
+from lib.data_centre.database.config.database_access_config import DB_CONFIG
 
 # Third party imports
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -20,10 +23,6 @@ from apscheduler.triggers.cron import CronTrigger
 from lib.data_centre.database.scripts import (exchanges_update, 
                                               tickers_update, 
                                               update_all_views)
-
-
-# Set sys.path modification
-project_root = PATHS['DATABASE']
 
 
 def main():
@@ -37,25 +36,30 @@ def main():
     scheduler.add_job(daily_price_update, CronTrigger(hour=1, minute=0))
     scheduler.add_job(daily_price_update, CronTrigger(hour=13, minute=0))
 
-    # Schedule a task to run every Sunday at 2:00 AM
-    scheduler.add_job(exchanges_update(DB_CONFIG), CronTrigger(day_of_week='sun', hour=2, minute=0))
+    # Schedule weekly tasks - Note: Don't call the functions, just pass them
+    scheduler.add_job(
+        lambda: exchanges_update(DB_CONFIG), 
+        CronTrigger(day_of_week='sun', hour=2, minute=0)
+    )
 
-    # Schedule a task to run every Sunday at 2:15 AM
-    scheduler.add_job(tickers_update(), CronTrigger(day_of_week='sun', hour=2, minute=15))
+    scheduler.add_job(
+        tickers_update, 
+        CronTrigger(day_of_week='sun', hour=2, minute=15)
+    )
 
-    # Schedule a task to run every Sunday at 2:30 AM
-    scheduler.add_job(update_all_views(DB_CONFIG), CronTrigger(day_of_week='sun', hour=2, minute=30))
+    scheduler.add_job(
+        lambda: update_all_views(DB_CONFIG), 
+        CronTrigger(day_of_week='sun', hour=2, minute=30)
+    )
 
-    # Start the scheduler
-    scheduler.start()
-
-    while True:
-        time.sleep(1)
-   
+    try:
+        # Start the scheduler
+        scheduler.start()
+        while True:
+            time.sleep(1)
+    except (KeyboardInterrupt, SystemExit):
+        scheduler.shutdown()
+        logger.info("Scheduler shutdown successfully")
 
 if __name__ == "__main__":
     main()
-
-
-
-
