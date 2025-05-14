@@ -19,7 +19,7 @@ the accuracy of psychohistorical predictions."
 - Second Foundation Theorem
 
 Author: James Allen
-Twitter: @JamesAllenMSc
+Email: project_seldon@protonmail.com
 Creation Date: May 8, 2025
 Version: 0.1.0
 """
