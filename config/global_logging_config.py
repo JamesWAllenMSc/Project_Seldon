@@ -7,7 +7,7 @@ logger = logging.getLogger('global_logger')
 logger.setLevel(logging.INFO)
 
 # Define log paths using Path for cross-platform compatibility
-LOG_DIR = Path('logs')
+LOG_DIR = Path('global_logs')
 LOG_FILE = LOG_DIR / 'global_event.log'
 
 def setup_logger():

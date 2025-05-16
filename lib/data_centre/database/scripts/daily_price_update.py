@@ -79,6 +79,7 @@ def daily_price_update() -> None:
                 exchange, 
                 EODHD_CONFIG['api_key']
             )
+            
             if new_prices is None:
                 logger.warning(f"No new price data for {exchange}")
                 continue

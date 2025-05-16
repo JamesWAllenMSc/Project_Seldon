@@ -14,9 +14,14 @@ import requests
 from lib.data_centre.database.config.database_logging_config import logger
 
 # Constants
-PRICE_COLUMNS = [
+PRICE_COLUMNS_SORTED = [
     'Ticker_ID', 'Date', 'Open', 'High', 'Low', 
     'Close', 'Adjusted_Close', 'Volume'
+]
+
+PRICE_COLUMNS = [
+    'Date', 'Open', 'High', 'Low', 
+    'Close', 'Adjusted_Close', 'Volume', 'Ticker_ID'
 ]
 
 US_EXCHANGES = {
@@ -100,6 +105,7 @@ def retrieve_exchanges(api_key: str) -> Optional[pd.DataFrame]:
     url = f"{APIEndpoints.EXCHANGES}/?api_token={api_key}&fmt=json"
     data = _make_api_request(url)
     
+    
     if not data:
         return None
         
@@ -136,12 +142,9 @@ def retrieve_historical_price(exchange, ticker, date_to, eodhd_api):
             return None
         id = f'{eod_ticker}'.replace('.', '_')  # Replace '.' with '_' to create a valid Ticker_ID
         price_data['Ticker_ID'] = id
-        price_data_columns = ['Date', 'Open', 'High', 'Low', 'Close', 'Adjusted_Close',
-                        'Volume', 'Ticker_ID'] 
-        price_data.columns = price_data_columns[:len(price_data.columns)]
-        price_data_columns_order = ['Ticker_ID', 'Date', 'Open', 'High', 'Low', 'Close', 'Adjusted_Close',
-                        'Volume'] # Rearranging columns
-        price_data = price_data[price_data_columns_order] # Specyfying column order to support db upload
+        price_data.columns = PRICE_COLUMNS[:len(price_data.columns)]
+        
+        price_data = price_data[PRICE_COLUMNS_SORTED] # Specyfying column order to support db upload
         return price_data
     except Exception as e:
         logger.error(f'Updating historical price data -Ticker: {ticker} -  {e}')
@@ -168,14 +171,14 @@ def retrieve_daily_price(exchange: str, api_key: str) -> Optional[pd.DataFrame]:
     try:
         # Convert to DataFrame and process
         df = pd.DataFrame(data)
-        
         # Create Ticker_ID and clean columns
         df['Ticker_ID'] = df['code'] + f'_{exchange}'
         df = df.drop(columns=['code', 'exchange_short_name'])
-        
-        # Ensure correct column order using constant
+        df.columns = PRICE_COLUMNS
+        df = df[PRICE_COLUMNS_SORTED]  # Specifying column order to support DB upload
         return df[PRICE_COLUMNS]
         
     except Exception as e:
         logger.error(f"Failed to process daily prices for {exchange}: {e}", exc_info=True)
         return None
+    

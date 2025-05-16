@@ -1,0 +1,20 @@
+Datetime:2025-05-15 14:50:11,860 - Level:INFO - Module:database_utils - Function:clear_all_tables - Message:Successfully dropped 82 tables
+Datetime:2025-05-15 14:50:11,863 - Level:INFO - Module:database_utils - Function:clear_all_views - Message:No views to clear
+Datetime:2025-05-15 14:50:12,551 - Level:INFO - Module:exchanges_update - Function:exchanges_update - Message:Added 77 new exchanges to database
+Datetime:2025-05-15 14:51:25,583 - Level:WARNING - Module:tickers_update - Function:tickers_update - Message:No ticker data for exchange VFEX
+Datetime:2025-05-15 14:51:32,975 - Level:INFO - Module:tickers_update - Function:tickers_update - Message:Added 208708 new tickers to database
+Datetime:2025-05-15 14:59:15,210 - Level:INFO - Module:populate_price_history - Function:populate_price_history - Message:Updated 440/440 historical prices for AS
+Datetime:2025-05-15 15:02:34,599 - Level:INFO - Module:populate_price_history - Function:populate_price_history - Message:Updated 147/147 historical prices for AT
+Datetime:2025-05-15 15:44:51,280 - Level:INFO - Module:populate_price_history - Function:populate_price_history - Message:Updated 2353/2353 historical prices for AU
+Datetime:2025-05-15 15:47:50,462 - Level:INFO - Module:populate_price_history - Function:populate_price_history - Message:Updated 157/157 historical prices for BA
+Datetime:2025-05-15 15:48:47,137 - Level:INFO - Module:populate_price_history - Function:populate_price_history - Message:Updated 71/71 historical prices for BC
+Datetime:2025-05-15 17:08:27,392 - Level:INFO - Module:populate_price_history - Function:populate_price_history - Message:Updated 3244/3244 historical prices for BE
+Datetime:2025-05-15 17:27:01,671 - Level:INFO - Module:populate_price_history - Function:populate_price_history - Message:Updated 1030/1030 historical prices for BK
+Datetime:2025-05-15 17:29:35,027 - Level:INFO - Module:populate_price_history - Function:populate_price_history - Message:Updated 116/116 historical prices for BR
+Datetime:2025-05-15 17:30:22,722 - Level:INFO - Module:populate_price_history - Function:populate_price_history - Message:Updated 39/39 historical prices for BUD
+Datetime:2025-05-15 18:09:39,960 - Level:INFO - Module:populate_price_history - Function:populate_price_history - Message:Updated 2341/2341 historical prices for CC
+Datetime:2025-05-15 18:14:39,993 - Level:INFO - Module:populate_price_history - Function:populate_price_history - Message:Updated 258/258 historical prices for CM
+Datetime:2025-05-15 18:23:11,090 - Level:INFO - Module:populate_price_history - Function:populate_price_history - Message:Updated 521/521 historical prices for CO
+Datetime:2025-05-15 18:23:33,875 - Level:INFO - Module:populate_price_history - Function:populate_price_history - Message:Updated 28/28 historical prices for DSE
+Datetime:2025-05-15 18:57:42,103 - Level:INFO - Module:populate_price_history - Function:populate_price_history - Message:Updated 1446/1446 historical prices for DU
+Datetime:2025-05-15 19:02:17,729 - Level:INFO - Module:populate_price_history - Function:populate_price_history - Message:Updated 270/270 historical prices for EGX

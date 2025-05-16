@@ -1,3 +1,0 @@
-Datetime:2025-05-13 21:28:04,090 - Level:INFO - Module:database_utils - Function:clear_all_tables - Message:Successfully dropped 42 tables
-Datetime:2025-05-13 21:28:04,100 - Level:INFO - Module:database_utils - Function:clear_all_views - Message:Successfully cleared 2 views
-Datetime:2025-05-13 21:28:04,743 - Level:INFO - Module:exchanges_update - Function:exchanges_update - Message:Added 77 new exchanges to database
