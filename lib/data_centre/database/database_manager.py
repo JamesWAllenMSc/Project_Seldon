@@ -14,8 +14,8 @@ project_root = PATHS['DATABASE']
 
 # Local application imports
 from lib.data_centre.database.scripts import daily_price_update
-from lib.data_centre.database.config.database_logging_config import logger
 from lib.data_centre.database.config.database_access_config import DB_CONFIG
+from config.global_logging_config import logger_factory
 
 # Third party imports
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -24,6 +24,7 @@ from lib.data_centre.database.scripts import (exchanges_update,
                                               tickers_update, 
                                               update_all_views)
 
+logger = logger_factory.get_logger('database', module_name=__name__)
 
 def main():
     """ Main function to schedule tasks using APScheduler """

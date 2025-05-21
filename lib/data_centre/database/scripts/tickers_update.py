@@ -14,9 +14,11 @@ import pandas as pd
 
 # Local application imports
 from lib.data_centre.database.utils import database_utils, eodhd_utils
-from lib.data_centre.database.config.database_logging_config import logger
 from lib.data_centre.database.config.database_access_config import DB_CONFIG
 from lib.data_centre.database.config.eodhd_access_config import EODHD_CONFIG
+from config.global_logging_config import logger_factory
+
+logger = logger_factory.get_logger('database', module_name=__name__)
 
 # Constants
 TICKER_COLUMNS = [

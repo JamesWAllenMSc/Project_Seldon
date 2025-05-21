@@ -5,8 +5,10 @@ import pandas as pd
 
 # Local application imports
 from lib.data_centre.database.utils import database_utils
-from lib.data_centre.database.config.database_logging_config import logger
 from lib.data_centre.database.config.database_config import TABLE_SCHEMA
+from config.global_logging_config import logger_factory
+
+logger = logger_factory.get_logger('database', module_name=__name__)
 
 
 def create_close_price_view(access: dict, exchange: str, table_list: list) -> bool:

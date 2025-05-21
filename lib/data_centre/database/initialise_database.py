@@ -20,13 +20,15 @@ from mysql.connector import connect, Error
 from config.database_config import PATHS
 from config.database_access_config import DB_CONFIG
 from lib.data_centre.database.utils import database_utils
-from lib.data_centre.database.config.database_logging_config import logger
+from config.global_logging_config import logger_factory
 from lib.data_centre.database.scripts import (
     exchanges_update,
     tickers_update,
     populate_price_history,
     update_all_views,
 )
+
+logger = logger_factory.get_logger('database', module_name=__name__)
 
 def main():
     """Execute the database initialization sequence."""

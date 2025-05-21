@@ -14,7 +14,9 @@ import pandas as pd
 from lib.data_centre.database.utils import database_utils, eodhd_utils
 from lib.data_centre.database.config.database_access_config import DB_CONFIG
 from lib.data_centre.database.config.eodhd_access_config import EODHD_CONFIG
-from lib.data_centre.database.config.database_logging_config import logger
+from config.global_logging_config import logger_factory
+
+logger = logger_factory.get_logger('database', module_name=__name__)
 
 # Constants
 PRICE_TABLE_SCHEMA = """

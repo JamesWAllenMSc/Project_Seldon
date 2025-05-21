@@ -1,7 +1,11 @@
+# Local application imports
 from contextlib import contextmanager
 from mysql.connector import connect, Error
-from lib.data_centre.database.config.database_logging_config import logger
 from lib.data_centre.database.config.database_config import TABLE_SCHEMA
+from config.global_logging_config import logger_factory
+
+logger = logger_factory.get_logger('database', module_name=__name__)
+
 # Third-party imports
 import pandas as pd
 

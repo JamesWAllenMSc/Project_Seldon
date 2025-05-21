@@ -11,7 +11,9 @@ from dataclasses import dataclass
 import pandas as pd
 import requests
 
-from lib.data_centre.database.config.database_logging_config import logger
+from config.global_logging_config import logger_factory
+
+logger = logger_factory.get_logger('database', module_name=__name__)
 
 # Constants
 PRICE_COLUMNS_SORTED = [
