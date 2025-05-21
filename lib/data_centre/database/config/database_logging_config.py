@@ -7,7 +7,7 @@ logger = logging.getLogger('database_logger')
 logger.setLevel(logging.INFO)
 
 # Define log paths using Path for cross-platform compatibility
-LOG_DIR = Path('database_logs')
+LOG_DIR = Path('logs')
 LOG_FILE = LOG_DIR / 'database_event.log'
 
 def setup_logger():
