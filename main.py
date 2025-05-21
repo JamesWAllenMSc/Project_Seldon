@@ -32,9 +32,10 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).resolve().parent
 
 
-# Now we can safely import our modules
 from lib.data_centre.database.database_manager import main as database_manager
-from config.global_logging_config import logger
+from config.settings.logging import logger_factory
+
+logger = logger_factory.get_logger('global', module_name=__name__)
 
 
 def main() -> int:

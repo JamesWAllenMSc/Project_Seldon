@@ -13,3 +13,5 @@ DB_CONFIG = {
     'port': os.getenv('DB_PORT'),
     'raise_on_warnings': True
 }
+
+TABLE_SCHEMA = 'project_seldon_dev'

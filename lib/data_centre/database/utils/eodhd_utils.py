@@ -11,7 +11,7 @@ from dataclasses import dataclass
 import pandas as pd
 import requests
 
-from config.global_logging_config import logger_factory
+from config.settings.logging import logger_factory
 
 logger = logger_factory.get_logger('database', module_name=__name__)
 

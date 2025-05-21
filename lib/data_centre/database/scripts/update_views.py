@@ -5,8 +5,8 @@ import pandas as pd
 
 # Local application imports
 from lib.data_centre.database.utils import database_utils
-from lib.data_centre.database.config.database_config import TABLE_SCHEMA
-from config.global_logging_config import logger_factory
+from config.connections.database_access import TABLE_SCHEMA
+from config.settings.logging import logger_factory
 
 logger = logger_factory.get_logger('database', module_name=__name__)
 

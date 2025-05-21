@@ -6,12 +6,21 @@ from datetime import datetime
 from pathlib import Path
 from typing import Optional
 
+# Get project root directory
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+LOG_DIR = PROJECT_ROOT / "logs"
+
 class LoggerFactory:
     """Factory class to create and manage loggers for different project areas."""
     
-    def __init__(self, log_dir: str = "logs"):
-        self.log_dir = Path(log_dir)
+    def __init__(self):
+        self.log_dir = LOG_DIR
         self.log_dir.mkdir(exist_ok=True)
+        
+        # Create subdirectories for different areas
+        self.log_dir.joinpath('database').mkdir(exist_ok=True)
+        self.log_dir.joinpath('global').mkdir(exist_ok=True)
+        
         self._loggers = {}
 
     def get_logger(
@@ -31,14 +40,14 @@ class LoggerFactory:
         logger_name = f"{area}_{module_name}" if module_name else area
         
         if logger_name not in self._loggers:
-            # Create new logger
             logger = logging.getLogger(logger_name)
             logger.setLevel(level)
             
-            # Only add handlers if they haven't been added
             if not logger.handlers:
-                # Create area-specific log file
-                log_file = self.log_dir / f"{area}_{datetime.now().strftime('%Y-%m-%d')}.log"
+                # Simplified log file naming: area_YYYY_DD.log
+                log_file = self.log_dir / area / f"{area}_{datetime.now().strftime('%Y_%d')}.log"
+                
+                log_file.parent.mkdir(exist_ok=True)
                 
                 # File handler
                 file_handler = logging.FileHandler(log_file)
@@ -68,7 +77,3 @@ class LoggerFactory:
 
 # Create global logger factory instance
 logger_factory = LoggerFactory()
-
-# Example usage in other modules:
-# from config.global_logging_config import logger_factory
-# logger = logger_factory.get_logger('database', module_name=__name__)

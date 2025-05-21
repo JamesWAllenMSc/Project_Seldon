@@ -12,12 +12,11 @@ import pandas as pd
 
 # Local application imports
 from lib.data_centre.database.utils import database_utils, eodhd_utils
-from lib.data_centre.database.config.database_access_config import DB_CONFIG
-from lib.data_centre.database.config.eodhd_access_config import EODHD_CONFIG
-from config.global_logging_config import logger_factory
+from config.connections.database_access import DB_CONFIG
+from config.connections.eodhd_access import EODHD_CONFIG
+from config.settings.logging import logger_factory
 
 logger = logger_factory.get_logger('database', module_name=__name__)
-
 
 def _get_exchange_codes() -> List[str]:
     """Retrieve list of exchange codes from database."""

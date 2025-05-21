@@ -13,14 +13,20 @@ It performs the following operations:
 import sys
 from pathlib import Path
 
+# Add project root to Python path before other imports
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent.parent
+sys.path.append(str(PROJECT_ROOT))
+# print(f"Project root path: {PROJECT_ROOT}")
+
+
 # Third-party imports
 from mysql.connector import connect, Error
 
 # Local application imports
-from config.database_config import PATHS
-from config.database_access_config import DB_CONFIG
+from config.settings.paths import PATHS
+from config.connections.database_access import DB_CONFIG
 from lib.data_centre.database.utils import database_utils
-from config.global_logging_config import logger_factory
+from config.settings.logging import logger_factory
 from lib.data_centre.database.scripts import (
     exchanges_update,
     tickers_update,

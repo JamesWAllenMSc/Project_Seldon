@@ -15,10 +15,10 @@ import numpy as np
 import pandas as pd
 
 # Local application imports
-from lib.data_centre.database.config.database_config import PATHS
-from lib.data_centre.database.config.eodhd_access_config import EODHD_CONFIG
+from config.settings.paths import PATHS
+from config.connections.eodhd_access import EODHD_CONFIG
 from lib.data_centre.database.utils import eodhd_utils, database_utils
-from config.global_logging_config import logger_factory
+from config.settings.logging import logger_factory
 
 logger = logger_factory.get_logger('database', module_name=__name__)
 
@@ -173,5 +173,5 @@ def exchanges_update(db_config: Dict[str, str]) -> None:
 
 if __name__ == "__main__":
     # For testing/direct execution
-    from config.database_access_config import DB_CONFIG
+    from config.connections.database_access import DB_CONFIG
     exchanges_update(DB_CONFIG)
