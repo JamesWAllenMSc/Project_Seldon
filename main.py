@@ -10,21 +10,7 @@ Author: James Allen
 Twitter: @JamesAllenMSc
 Creation Date: May 8, 2025
 """
-"""
-Project Seldon
-Main application entry point
-
-"The larger the mass of humanity being dealt with, the greater 
-the accuracy of psychohistorical predictions."
-- Second Foundation Theorem
-
-Author: James Allen
-Email: project_seldon@protonmail.com
-Creation Date: May 8, 2025
-Version: 0.1.0
-"""
-
-import os
+# Standard library imports
 import sys
 from pathlib import Path
 

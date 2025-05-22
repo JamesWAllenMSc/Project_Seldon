@@ -4,6 +4,7 @@ from mysql.connector import connect, Error
 from config.connections.database_access import TABLE_SCHEMA
 from config.settings.logging import logger_factory
 
+
 logger = logger_factory.get_logger('database', module_name=__name__)
 
 # Third-party imports
@@ -131,10 +132,10 @@ def clear_all_views(access: dict) -> None:
     Args:
         access: Database connection configuration dictionary
     """
-    query = """
+    query = f"""
         SELECT TABLE_NAME 
         FROM INFORMATION_SCHEMA.VIEWS 
-        WHERE TABLE_SCHEMA = DATABASE();
+        WHERE TABLE_SCHEMA = '{TABLE_SCHEMA}';
     """
     
     try:
