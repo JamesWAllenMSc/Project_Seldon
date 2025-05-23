@@ -26,17 +26,19 @@ logger = logger_factory.get_logger('database', module_name=__name__)
 # Constants
 EXCLUDED_EXCHANGES = ['MONEY', 'BRVM']
 TABLE_COLUMNS = [
-    'Name', 'Code', 'OperatingMIC', 'Country',
-    'Currency', 'CountryISO2', 'CountryISO3',
-    'Source', 'Date_Updated'
+    'Name', 'Code', 'EoDHD_Code', 'OperatingMIC',
+    'Country', 'Currency', 'CountryISO2',
+    'CountryISO3', 'Source', 'Date_Updated'
 ]
 
+US_STOCKS = ['NASDAQ', 'NYSE']
 
 # SQL Queries
 CREATE_TABLE_QUERY = """
     CREATE TABLE IF NOT EXISTS global_exchanges (
         Name VARCHAR(255),
         Code VARCHAR(255),
+        EoDHD_Code VARCHAR(255),
         OperatingMIC VARCHAR(255),
         Country VARCHAR(255),
         Currency VARCHAR(255),
@@ -73,6 +75,8 @@ def _get_eodhd_exchanges(api_key: str) -> pd.DataFrame:
         DataFrame containing filtered EODHD exchange data
     """
     df = eodhd_utils.retrieve_exchanges(api_key)
+    df['EoDHD_Code']=df['Code'].apply(lambda x: 'US' if x in US_STOCKS else x)
+    df = df[TABLE_COLUMNS]
     return df[~df['Code'].isin(EXCLUDED_EXCHANGES)]
 
 
@@ -99,7 +103,7 @@ def _find_missing_exchanges(eod_data: pd.DataFrame, db_data: pd.DataFrame) -> pd
         DataFrame containing missing exchanges
     """
     eod_codes = eod_data['Code']
-    eod_codes = pd.Series(['IR', 'LUSE', 'NASDAQ', 'US']) # TESTING ONLY REMOVE AT DEPLOYMENT
+    #eod_codes = pd.Series(['IR', 'LUSE', 'NASDAQ', 'US']) # TESTING ONLY REMOVE AT DEPLOYMENT
     db_codes = db_data['Code']
     stacked_codes = pd.concat([eod_codes, db_codes], axis=0)
     missing_codes = stacked_codes.drop_duplicates(keep=False)
