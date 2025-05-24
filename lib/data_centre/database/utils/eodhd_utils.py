@@ -87,8 +87,10 @@ def retrieve_tickers(api_key: str, exchange: str) -> Optional[pd.DataFrame]:
         df['Source'] = f'EoDHD.com - Exchange {exchange}'
         df['Date_Updated'] = datetime.datetime.now()
         df['Ticker_ID'] = df['Code'] + f'_{exchange}'
+        df['EoDHD_Exchange']=df['Exchange'].apply(lambda x: 'US' if x in list(US_EXCHANGES.keys()) else x)
+
         
-        return df[['Ticker_ID', 'Code', 'Name', 'Country', 'Exchange',
+        return df[['Ticker_ID', 'Code', 'Name', 'Country', 'Exchange', 'EoDHD_Exchange',
                   'Currency', 'Type', 'Isin', 'Source', 'Date_Updated']]
     except Exception as e:
         logger.error(f"Failed to process ticker data for {exchange}: {e}")

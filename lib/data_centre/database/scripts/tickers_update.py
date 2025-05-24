@@ -22,7 +22,7 @@ logger = logger_factory.get_logger('database', module_name=__name__)
 
 # Constants
 TICKER_COLUMNS = [
-    'Ticker_ID', 'Code', 'Name', 'Country', 'Exchange',
+    'Ticker_ID', 'Code', 'Name', 'Country', 'Exchange', 'EoDHD_Exchange',
     'Currency', 'Type', 'Isin', 'Source', 'Date_Updated'
 ]
 
@@ -33,6 +33,7 @@ CREATE_TABLE_QUERY = """
         Name VARCHAR(255),
         Country VARCHAR(255),
         Exchange VARCHAR(255),
+        EoDHD_Exchange VARCHAR(255),
         Currency VARCHAR(255),
         Type VARCHAR(255),
         Isin VARCHAR(255),
@@ -80,7 +81,7 @@ def tickers_update() -> None:
         database_utils.execute_query(DB_CONFIG, CREATE_TABLE_QUERY)
         logger.debug("Ensured global_tickers table exists")
 
-        # Get exchange list
+        # Get exchange list from database
         exchange_list = _get_exchange_list(DB_CONFIG)
         logger.debug(f"Retrieved {len(exchange_list)} exchanges from database")
 

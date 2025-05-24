@@ -103,7 +103,7 @@ def _find_missing_exchanges(eod_data: pd.DataFrame, db_data: pd.DataFrame) -> pd
         DataFrame containing missing exchanges
     """
     eod_codes = eod_data['Code']
-    #eod_codes = pd.Series(['IR', 'LUSE', 'NASDAQ', 'US']) # TESTING ONLY REMOVE AT DEPLOYMENT
+    eod_codes = pd.Series(['IR', 'LUSE', 'NASDAQ', 'US']) # TESTING ONLY REMOVE AT DEPLOYMENT
     db_codes = db_data['Code']
     stacked_codes = pd.concat([eod_codes, db_codes], axis=0)
     missing_codes = stacked_codes.drop_duplicates(keep=False)
