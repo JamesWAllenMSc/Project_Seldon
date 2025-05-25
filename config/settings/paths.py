@@ -5,8 +5,6 @@ from pathlib import Path
 # Get the project root directory (3 levels up from this file)
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 
-print(f"Project root path: {PROJECT_ROOT}")
-
 PATHS = {
     "PROJECT_ROOT": PROJECT_ROOT,
     "DATABASE": PROJECT_ROOT / "lib/data_centre/database",
