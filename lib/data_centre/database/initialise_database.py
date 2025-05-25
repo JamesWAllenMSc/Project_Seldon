@@ -26,10 +26,10 @@ from config.connections.database_access import DB_CONFIG
 from lib.data_centre.database.utils import database_utils
 from config.settings.logging import logger_factory
 from lib.data_centre.database.scripts import (
-    #exchanges_update,
-    #tickers_update,
+    exchanges_update,
+    tickers_update,
     populate_price_history,
-    #update_all_views,
+    update_all_views,
 )
 
 logger = logger_factory.get_logger('database', module_name=__name__)
@@ -38,12 +38,12 @@ def main():
     """Execute the database initialization sequence."""
     try:
         # Clear existing data
-        #database_utils.clear_all_tables(DB_CONFIG)
-        #database_utils.clear_all_views(DB_CONFIG)
+        database_utils.clear_all_tables(DB_CONFIG)
+        database_utils.clear_all_views(DB_CONFIG)
 
         # Update core data
-        #exchanges_update(DB_CONFIG)
-        #tickers_update()
+        exchanges_update(DB_CONFIG)
+        tickers_update()
         populate_price_history()
 
         # Refresh views

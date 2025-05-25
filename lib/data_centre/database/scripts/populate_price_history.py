@@ -24,11 +24,12 @@ def _get_exchange_codes() -> List[str]:
     data = database_utils.retrieve_table(DB_CONFIG, query)
     return pd.DataFrame(data, columns=['Code'])['Code'].tolist()
 
-def _get_ticker_codes(exchange: str) -> List[str]:
+def _get_ticker_codes():
     """Retrieve ticker codes for a specific exchange."""
-    query = f"SELECT Code FROM global_tickers WHERE Exchange='{exchange}';"
+    query = f"SELECT Code, Exchange, EoDHD_Exchange FROM global_tickers;"
     data = database_utils.retrieve_table(DB_CONFIG, query)
-    return pd.DataFrame(data, columns=['Code'])['Code'].tolist()
+    data = pd.DataFrame(data, columns=['Code', 'Exchange', 'EoDHD_Exchange'])
+    return data
 
 def _create_price_table(exchange: str, year: int) -> None:
     """Create price table for specific exchange and year if not exists."""
@@ -49,32 +50,34 @@ def _create_price_table(exchange: str, year: int) -> None:
 def populate_price_history() -> None:
     """Populate historical price data for all tickers across exchanges."""
     today = datetime.now().strftime('%Y-%m-%d')
+    updates = 0
+    total = 0
+       
+    ticker = _get_ticker_codes()
+    for tickers in ticker.itertuples():
+        ticker = tickers.Code
+        eod_exchange = tickers.EoDHD_Exchange
+        exchange = tickers.Exchange
+        total += 1
     
-    for exchange in _get_exchange_codes():
-        updates = 0
-        total = 0
+        # Get historical price data
+        price_data = eodhd_utils.retrieve_historical_price(
+            eod_exchange, ticker, today, EODHD_CONFIG['api_key']
+        )
         
-        for ticker in _get_ticker_codes(exchange):
-            total += 1
-            
-            # Get historical price data
-            price_data = eodhd_utils.retrieve_historical_price(
-                exchange, ticker, today, EODHD_CONFIG['api_key']
-            )
-            
-            if price_data is None:
-                continue
-            updates += 1
-            # Process each year's data
-            price_data['Date'] = pd.to_datetime(price_data['Date'])
-            for year in sorted(price_data['Date'].dt.year.unique(), reverse=True):
-                _create_price_table(exchange, year)
-                
-                yearly_data = price_data[price_data['Date'].dt.year == year]
-                database_utils.add_stock_price(yearly_data, exchange, year, DB_CONFIG)
-                logger.debug(f"Added historical prices for {ticker} ({year})")
-                
-        logger.info(f"Updated {updates}/{total} historical prices for {exchange}")
+        if price_data is None:
+            logger.info(f"Unable to retireve historical prices for {ticker} ({eod_exchange}) from EODHD.com")
+            continue
+        
+        # Process each year's data
+        price_data['Date'] = pd.to_datetime(price_data['Date'])
+        
+        for year in sorted(price_data['Date'].dt.year.unique(), reverse=True):
+            _create_price_table(exchange, year)
+            yearly_data = price_data[price_data['Date'].dt.year == year]
+            database_utils.add_stock_price(yearly_data, exchange, year, DB_CONFIG)
+        
+        logger.debug(f"Updated historical prices for {ticker} on {exchange}")
 
 if __name__ == "__main__":
     populate_price_history()

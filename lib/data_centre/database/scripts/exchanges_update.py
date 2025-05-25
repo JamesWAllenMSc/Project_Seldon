@@ -31,7 +31,7 @@ TABLE_COLUMNS = [
     'CountryISO3', 'Source', 'Date_Updated'
 ]
 
-US_STOCKS = ['NASDAQ', 'NYSE']
+US_STOCKS = ['NASDAQ', 'NYSE', 'PINK', 'NMFQS']
 
 # SQL Queries
 CREATE_TABLE_QUERY = """

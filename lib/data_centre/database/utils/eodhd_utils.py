@@ -42,6 +42,22 @@ US_EXCHANGES = {
         'Currency': 'USD',
         'CountryISO2': 'US',
         'CountryISO3': 'USA',
+    },
+    'PINK': {
+        'Name': 'OTC Markets Group',
+        'OperatingMIC': 'OTCM',
+        'Country': 'US',
+        'Currency': 'USD',
+        'CountryISO2': 'US',
+        'CountryISO3': 'USA',
+    },
+    'NMFQS': {
+        'Name': 'Money Market Obligations Trust - Federated Hermes California Municipal Cash Trust',
+        'OperatingMIC': 'NMFQS',
+        'Country': 'US',
+        'Currency': 'USD',
+        'CountryISO2': 'US',
+        'CountryISO3': 'USA',
     }
 }
 
