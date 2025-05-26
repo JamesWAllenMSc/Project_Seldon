@@ -72,7 +72,7 @@ def reset_price_tables(access):
     """ Takes access credentials and resets all global_price tables in the database
     --------------------------------------------------------------------------
     """
-    retrieve_enchange_codes_query = 'SELECT Code FROM global_exchanges'
+    retrieve_enchange_codes_query = 'SELECT Exchanges FROM global_exchanges'
     exchange_code_list = retrieve_table(access, retrieve_enchange_codes_query)
     exchange_code_list = [item[0] for item in exchange_code_list] # Convert list of tuples to list of strings
 

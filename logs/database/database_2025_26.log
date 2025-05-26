@@ -1,0 +1,52 @@
+Datetime:2025-05-26 18:10:35,094 - Level:INFO - Module:database_utils - Function:clear_all_tables - Message:Successfully dropped 1 tables
+Datetime:2025-05-26 18:10:35,104 - Level:INFO - Module:database_utils - Function:clear_all_views - Message:No views to clear
+Datetime:2025-05-26 18:10:36,117 - Level:INFO - Module:exchanges_update - Function:exchanges_update - Message:Added 79 new exchanges to database
+Datetime:2025-05-26 18:10:36,117 - Level:INFO - Module:initialise_database - Function:main - Message:Database initialization completed successfully
+Datetime:2025-05-26 18:30:43,287 - Level:INFO - Module:exchanges_update - Function:exchanges_update - Message:No new exchanges to add
+Datetime:2025-05-26 18:30:43,309 - Level:ERROR - Module:database_utils - Function:db_connection - Message:Database error: 1054 (42S22): Unknown column 'Code' in 'SELECT'
+Datetime:2025-05-26 18:30:43,310 - Level:ERROR - Module:tickers_update - Function:tickers_update - Message:Failed to update tickers
+Traceback (most recent call last):
+  File "/home/jamesallen/projects/Project_Seldon/.venv/lib/python3.13/site-packages/mysql/connector/connection_cext.py", line 772, in cmd_query
+    self._cmysql.query(
+    ~~~~~~~~~~~~~~~~~~^
+        query,
+        ^^^^^^
+    ...<3 lines>...
+        query_attrs=self.query_attrs,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+_mysql_connector.MySQLInterfaceError: Unknown column 'Code' in 'SELECT'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/jamesallen/projects/Project_Seldon/lib/data_centre/database/scripts/tickers_update.py", line 85, in tickers_update
+    exchange_list = _get_exchange_list(DB_CONFIG)
+  File "/home/jamesallen/projects/Project_Seldon/lib/data_centre/database/scripts/tickers_update.py", line 49, in _get_exchange_list
+    table = database_utils.retrieve_table(db_config, query)
+  File "/home/jamesallen/projects/Project_Seldon/lib/data_centre/database/utils/database_utils.py", line 47, in retrieve_table
+    cursor.execute(query)
+    ~~~~~~~~~~~~~~^^^^^^^
+  File "/home/jamesallen/projects/Project_Seldon/.venv/lib/python3.13/site-packages/mysql/connector/cursor_cext.py", line 356, in execute
+    self._connection.cmd_query(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self._stmt_partition["mappable_stmt"],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+        raw_as_string=self._raw_as_string,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/home/jamesallen/projects/Project_Seldon/.venv/lib/python3.13/site-packages/mysql/connector/opentelemetry/context_propagation.py", line 97, in wrapper
+    return method(cnx, *args, **kwargs)
+  File "/home/jamesallen/projects/Project_Seldon/.venv/lib/python3.13/site-packages/mysql/connector/connection_cext.py", line 781, in cmd_query
+    raise get_mysql_exception(
+        err.errno, msg=err.msg, sqlstate=err.sqlstate
+    ) from err
+mysql.connector.errors.ProgrammingError: 1054 (42S22): Unknown column 'Code' in 'SELECT'
+Datetime:2025-05-26 18:30:43,314 - Level:ERROR - Module:initialise_database - Function:main - Message:Database initialization failed: 1054 (42S22): Unknown column 'Code' in 'SELECT'
+Datetime:2025-05-26 18:33:25,670 - Level:INFO - Module:exchanges_update - Function:exchanges_update - Message:No new exchanges to add
+Datetime:2025-05-26 18:33:25,671 - Level:INFO - Module:initialise_database - Function:main - Message:Database initialization completed successfully
+Datetime:2025-05-26 18:46:36,330 - Level:INFO - Module:tickers_update - Function:tickers_update - Message:Added 244087 new tickers to database
+Datetime:2025-05-26 18:46:36,341 - Level:INFO - Module:initialise_database - Function:main - Message:Database initialization completed successfully

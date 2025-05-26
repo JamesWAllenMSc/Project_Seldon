@@ -47,9 +47,10 @@ PRICE_QUERY = """
 
 def _get_exchange_codes() -> List[str]:
     """Retrieve list of exchange codes from database."""
-    query = 'SELECT Code FROM global_exchanges;'
+    query = 'SELECT Code, EoDHD_Code FROM global_exchanges;'
     data = database_utils.retrieve_table(DB_CONFIG, query)
-    return [code[0] for code in data]
+    data = pd.DataFrame(data, columns=['Code', 'EoDHD_Code'])
+    return data
 
 def _ensure_price_table(exchange: str, year: int) -> None:
     """Create price table for exchange and year if it doesn't exist."""
@@ -57,7 +58,7 @@ def _ensure_price_table(exchange: str, year: int) -> None:
     database_utils.execute_query(DB_CONFIG, query)
 
 def _get_latest_price(exchange: str, year: int) -> Optional[datetime.date]:
-    """Get the most recent price date for an exchange."""
+    """Get the most recent price date for an exchange from the database."""
     query = PRICE_QUERY.format(exchange=exchange, year=year)
     data = database_utils.retrieve_table(DB_CONFIG, query)
     
@@ -68,50 +69,56 @@ def _get_latest_price(exchange: str, year: int) -> Optional[datetime.date]:
         'Ticker', 'Exchange', 'Ticker_ID', 'Date', 'Open', 'High', 
         'Low', 'Close', 'Adjusted_Close', 'Volume'
     ])
+    
     return df['Date'].max()
 
 def daily_price_update() -> None:
     """Update daily prices for all exchanges."""
     current_year = datetime.now().year
-    
-    for exchange in _get_exchange_codes():
+
+    # Get code and eod_code from global exchanges table iterate over
+    exchanges = _get_exchange_codes()
+    for exchange in exchanges.itertuples():
+        exchange_code = exchange.Code
+        eod_code = exchange.EoDHD_Code
+                
         try:
-            # Get new price data
+            # Get new price data from EoDHD for whole exchange
+            # eod_code = 'BR'
             new_prices = eodhd_utils.retrieve_daily_price(
-                exchange, 
+                eod_code, exchange_code,
                 EODHD_CONFIG['api_key']
             )
             
             if new_prices is None:
-                logger.warning(f"No new price data for {exchange}")
+                logger.warning(f"No new price data for {exchange_code}, using EoD Code {eod_code}")
                 continue
-                
+            
             new_price_date = pd.to_datetime(new_prices['Date'].iloc[0]).date()
-            
             # Ensure price table exists
-            _ensure_price_table(exchange, current_year)
-            
+            _ensure_price_table(exchange_code, current_year)
+                        
             # Get latest existing price
-            latest_price_date = _get_latest_price(exchange, current_year)
-            
+            latest_price_date = _get_latest_price(exchange_code, current_year)
             if latest_price_date is None:
                 logger.info(f"No existing prices for {exchange}. Consider historical update")
                 continue
                 
             # Update if new data available
             if new_price_date > latest_price_date:
+
                 database_utils.add_stock_price(
                     new_prices, 
-                    exchange, 
+                    exchange_code, 
                     current_year, 
                     DB_CONFIG
                 )
-                logger.info(f"Updated prices for {exchange} to {new_price_date}")
+                logger.info(f"Updated prices for {exchange_code} to {new_price_date}")
             else:
-                logger.info(f"Prices for {exchange} already up to date")
+                logger.info(f"Prices for {exchange_code} already up to date")
                 
         except Exception as e:
-            logger.error(f"Error updating {exchange}: {str(e)}", exc_info=True)
+            logger.error(f"Error updating {exchange_code} using EoD Code {eod_code}: {str(e)}", exc_info=True)
             continue
 
 if __name__ == "__main__":

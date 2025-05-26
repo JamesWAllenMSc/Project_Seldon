@@ -45,7 +45,7 @@ CREATE_TABLE_QUERY = """
 
 def _get_exchange_list(db_config: Dict[str, Any]) -> List[str]:
     """Retrieve list of exchange codes from database."""
-    query = 'SELECT Code FROM global_exchanges;'
+    query = 'SELECT Exchange FROM global_exchanges;'
     table = database_utils.retrieve_table(db_config, query)
     return pd.DataFrame(table, columns=['Code'])['Code'].tolist()
 

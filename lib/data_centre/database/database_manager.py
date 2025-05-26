@@ -22,6 +22,8 @@ from lib.data_centre.database.scripts import (exchanges_update,
 
 logger = logger_factory.get_logger('database', module_name=__name__)
 
+daily_price_update()
+
 def main():
     """ Main function to schedule tasks using APScheduler """
     logger.info("Starting Seldon database management scripts...")

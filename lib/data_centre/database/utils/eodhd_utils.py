@@ -165,12 +165,13 @@ def retrieve_historical_price(exchange, ticker, date_to, eodhd_api):
         price_data.columns = PRICE_COLUMNS[:len(price_data.columns)]
         
         price_data = price_data[PRICE_COLUMNS_SORTED] # Specyfying column order to support db upload
+        print(price_data.head())  # Debugging line to check data
         return price_data
     except Exception as e:
         logger.error(f'Updating historical price data -Ticker: {ticker} -  {e}')
 
 
-def retrieve_daily_price(exchange: str, api_key: str) -> Optional[pd.DataFrame]:
+def retrieve_daily_price(eod_code: str, exchange_code: str, api_key: str) -> Optional[pd.DataFrame]:
     """Retrieve latest daily prices for all tickers in an exchange.
     
     Args:
@@ -180,25 +181,26 @@ def retrieve_daily_price(exchange: str, api_key: str) -> Optional[pd.DataFrame]:
     Returns:
         DataFrame containing daily price data or None if request fails
     """
-    url = f"{APIEndpoints.DAILY}/{exchange}?api_token={api_key}&fmt=json"
+    url = f"{APIEndpoints.DAILY}/{eod_code}?api_token={api_key}&fmt=json"
     
     # Make API request using existing helper
     data = _make_api_request(url)
     if not data:
-        logger.warning(f"No daily price data retrieved for {exchange}")
+        logger.warning(f"No daily price data retrieved for {exchange_code} using EoDHD code {eod_code}")
         return None
         
     try:
         # Convert to DataFrame and process
         df = pd.DataFrame(data)
         # Create Ticker_ID and clean columns
-        df['Ticker_ID'] = df['code'] + f'_{exchange}'
+        df['Ticker_ID'] = df['code'] + f'_{exchange_code}'
+        df = df.loc[df['exchange_short_name'] == exchange_code]
         df = df.drop(columns=['code', 'exchange_short_name'])
         df.columns = PRICE_COLUMNS
         df = df[PRICE_COLUMNS_SORTED]  # Specifying column order to support DB upload
         return df[PRICE_COLUMNS]
         
     except Exception as e:
-        logger.error(f"Failed to process daily prices for {exchange}: {e}", exc_info=True)
+        logger.error(f"Failed to process daily prices for {exchange_code} retrieved using {eod_code}: {e}", exc_info=True)
         return None
     
