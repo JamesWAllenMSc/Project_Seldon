@@ -165,7 +165,6 @@ def retrieve_historical_price(exchange, ticker, date_to, eodhd_api):
         price_data.columns = PRICE_COLUMNS[:len(price_data.columns)]
         
         price_data = price_data[PRICE_COLUMNS_SORTED] # Specyfying column order to support db upload
-        print(price_data.head())  # Debugging line to check data
         return price_data
     except Exception as e:
         logger.error(f'Updating historical price data -Ticker: {ticker} -  {e}')
@@ -195,7 +194,6 @@ def retrieve_daily_price(eod_code: str, exchange_code: str, api_key: str) -> Opt
         # Create Ticker_ID and clean columns
         df['Ticker_ID'] = df['code'] + f'_{exchange_code}'
         df = df.loc[df['exchange_short_name'] == exchange_code]
-        df = df.drop(columns=['code', 'exchange_short_name'])
         df.columns = PRICE_COLUMNS
         df = df[PRICE_COLUMNS_SORTED]  # Specifying column order to support DB upload
         return df[PRICE_COLUMNS]

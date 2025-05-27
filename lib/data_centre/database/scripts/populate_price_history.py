@@ -50,16 +50,13 @@ def _create_price_table(exchange: str, year: int) -> None:
 def populate_price_history() -> None:
     """Populate historical price data for all tickers across exchanges."""
     today = datetime.now().strftime('%Y-%m-%d')
-    updates = 0
-    total = 0
-       
+           
     ticker = _get_ticker_codes()
     for tickers in ticker.itertuples():
         ticker = tickers.Code
         eod_exchange = tickers.EoDHD_Exchange
         exchange = tickers.Exchange
-        total += 1
-    
+            
         # Get historical price data
         price_data = eodhd_utils.retrieve_historical_price(
             eod_exchange, ticker, today, EODHD_CONFIG['api_key']
@@ -69,6 +66,9 @@ def populate_price_history() -> None:
             logger.info(f"Unable to retireve historical prices for {ticker} ({eod_exchange}) from EODHD.com")
             continue
         
+        price_data['Exchange'] = exchange
+        price_data['EoDHD_Exchange'] = eod_exchange
+        print(price_data)
         # Process each year's data
         price_data['Date'] = pd.to_datetime(price_data['Date'])
         
