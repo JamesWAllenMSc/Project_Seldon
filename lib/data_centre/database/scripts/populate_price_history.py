@@ -18,6 +18,12 @@ from config.settings.logging import logger_factory
 
 logger = logger_factory.get_logger('database', module_name=__name__)
 
+# Constants
+TABLE_COLUMNS_SORTED = [
+    'Ticker_ID', 'Ticker', 'Exchange', 'EoDHD_Exchange',
+    'Date', 'Open', 'High', 'Low', 'Close', 'Adjusted_Close', 'Volume'
+]
+
 def _get_exchange_codes() -> List[str]:
     """Retrieve list of exchange codes from database."""
     query = 'SELECT Code FROM global_exchanges;'
@@ -26,9 +32,9 @@ def _get_exchange_codes() -> List[str]:
 
 def _get_ticker_codes():
     """Retrieve ticker codes for a specific exchange."""
-    query = f"SELECT Code, Exchange, EoDHD_Exchange FROM global_tickers;"
+    query = f"SELECT Ticker, Exchange, EoDHD_Exchange FROM global_tickers;"
     data = database_utils.retrieve_table(DB_CONFIG, query)
-    data = pd.DataFrame(data, columns=['Code', 'Exchange', 'EoDHD_Exchange'])
+    data = pd.DataFrame(data, columns=['Ticker', 'Exchange', 'EoDHD_Exchange'])
     return data
 
 def _create_price_table(exchange: str, year: int) -> None:
@@ -36,6 +42,9 @@ def _create_price_table(exchange: str, year: int) -> None:
     query = f"""
         CREATE TABLE IF NOT EXISTS prices_{exchange}_{year} (
             Ticker_ID VARCHAR(255),
+            Ticker VARCHAR(255),
+            Exchange VARCHAR(255),
+            EoDHD_Exchange VARCHAR(255),
             Date DATE,
             Open DECIMAL(20,6),
             High DECIMAL(20,6),
@@ -53,7 +62,7 @@ def populate_price_history() -> None:
            
     ticker = _get_ticker_codes()
     for tickers in ticker.itertuples():
-        ticker = tickers.Code
+        ticker = tickers.Ticker
         eod_exchange = tickers.EoDHD_Exchange
         exchange = tickers.Exchange
             
@@ -63,18 +72,21 @@ def populate_price_history() -> None:
         )
         
         if price_data is None:
-            logger.info(f"Unable to retireve historical prices for {ticker} ({eod_exchange}) from EODHD.com")
+            logger.info(f"Unable to retrieve historical prices for ({ticker}) using ({eod_exchange}) from EODHD.com")
             continue
-        
+        price_data['Ticker'] = ticker
         price_data['Exchange'] = exchange
         price_data['EoDHD_Exchange'] = eod_exchange
-        print(price_data)
+        price_data['Ticker_ID'] = f'{ticker}_{exchange}'
+        price_data = price_data[TABLE_COLUMNS_SORTED]
+                
         # Process each year's data
         price_data['Date'] = pd.to_datetime(price_data['Date'])
         
         for year in sorted(price_data['Date'].dt.year.unique(), reverse=True):
             _create_price_table(exchange, year)
             yearly_data = price_data[price_data['Date'].dt.year == year]
+            
             database_utils.add_stock_price(yearly_data, exchange, year, DB_CONFIG)
         
         logger.debug(f"Updated historical prices for {ticker} on {exchange}")

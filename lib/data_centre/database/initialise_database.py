@@ -38,13 +38,13 @@ def main():
     """Execute the database initialization sequence."""
     try:
         # Clear existing data
-        #database_utils.clear_all_tables(DB_CONFIG)
-        #database_utils.clear_all_views(DB_CONFIG)
+        database_utils.clear_all_tables(DB_CONFIG)
+        database_utils.clear_all_views(DB_CONFIG)
 
         # Update core data
-        #exchanges_update(DB_CONFIG)
-        #tickers_update()
-        populate_price_history()
+        exchanges_update(DB_CONFIG)
+        tickers_update()
+        #populate_price_history()
 
         # Refresh views
         #update_all_views(DB_CONFIG)

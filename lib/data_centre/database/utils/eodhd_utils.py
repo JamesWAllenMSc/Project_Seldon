@@ -17,13 +17,13 @@ logger = logger_factory.get_logger('database', module_name=__name__)
 
 # Constants
 PRICE_COLUMNS_SORTED = [
-    'Ticker_ID', 'Date', 'Open', 'High', 'Low', 
+    'Ticker_ID', 'Ticker', 'EoDHD_Exchange', 'Date', 'Open', 'High', 'Low', 
     'Close', 'Adjusted_Close', 'Volume'
 ]
 
 PRICE_COLUMNS = [
-    'Date', 'Open', 'High', 'Low', 
-    'Close', 'Adjusted_Close', 'Volume', 'Ticker_ID'
+    'Date', 'Open', 'High', 'Low', 'Close', 'Adjusted_Close', 
+    'Volume', 'Ticker_ID'
 ]
 
 US_EXCHANGES = {
@@ -54,6 +54,22 @@ US_EXCHANGES = {
     'NMFQS': {
         'Name': 'Money Market Obligations Trust - Federated Hermes California Municipal Cash Trust',
         'OperatingMIC': 'NMFQS',
+        'Country': 'US',
+        'Currency': 'USD',
+        'CountryISO2': 'US',
+        'CountryISO3': 'USA',
+    },
+    'NYSE_ARCA': {
+        'Name': 'NYSE Arca',
+        'OperatingMIC': 'XNYS',
+        'Country': 'US',
+        'Currency': 'USD',
+        'CountryISO2': 'US',
+        'CountryISO3': 'USA',
+    },
+    'NYSE_MKT': {
+        'Name': 'NYSE American (Small Cap Stocks)',
+        'OperatingMIC': 'XASE',
         'Country': 'US',
         'Currency': 'USD',
         'CountryISO2': 'US',
@@ -100,13 +116,14 @@ def retrieve_tickers(api_key: str, exchange: str) -> Optional[pd.DataFrame]:
         
     try:
         df = pd.DataFrame(data)
+        df.rename(columns={'Code': 'Ticker'}, inplace=True)
         df['Source'] = f'EoDHD.com - Exchange {exchange}'
         df['Date_Updated'] = datetime.datetime.now()
-        df['Ticker_ID'] = df['Code'] + f'_{exchange}'
+        df['Ticker_ID'] = df['Ticker'] + f'_{exchange}'
         df['EoDHD_Exchange']=df['Exchange'].apply(lambda x: 'US' if x in list(US_EXCHANGES.keys()) else x)
 
         
-        return df[['Ticker_ID', 'Code', 'Name', 'Country', 'Exchange', 'EoDHD_Exchange',
+        return df[['Ticker_ID', 'Ticker', 'Name', 'Country', 'Exchange', 'EoDHD_Exchange',
                   'Currency', 'Type', 'Isin', 'Source', 'Date_Updated']]
     except Exception as e:
         logger.error(f"Failed to process ticker data for {exchange}: {e}")
@@ -160,17 +177,15 @@ def retrieve_historical_price(exchange, ticker, date_to, eodhd_api):
         if price_data.empty:
             logger.debug(f"No data returned for Ticker: {ticker} on Exchange: {exchange}")
             return None
-        id = f'{eod_ticker}'.replace('.', '_')  # Replace '.' with '_' to create a valid Ticker_ID
-        price_data['Ticker_ID'] = id
-        price_data.columns = PRICE_COLUMNS[:len(price_data.columns)]
-        
-        price_data = price_data[PRICE_COLUMNS_SORTED] # Specyfying column order to support db upload
+        price_data['Ticker_ID'] = None
+        price_data.columns = PRICE_COLUMNS
+                     
         return price_data
     except Exception as e:
         logger.error(f'Updating historical price data -Ticker: {ticker} -  {e}')
 
 
-def retrieve_daily_price(eod_code: str, exchange_code: str, api_key: str) -> Optional[pd.DataFrame]:
+def retrieve_daily_price(eodhd_exchange: str, exchange: str, api_key: str) -> Optional[pd.DataFrame]:
     """Retrieve latest daily prices for all tickers in an exchange.
     
     Args:
@@ -180,25 +195,25 @@ def retrieve_daily_price(eod_code: str, exchange_code: str, api_key: str) -> Opt
     Returns:
         DataFrame containing daily price data or None if request fails
     """
-    url = f"{APIEndpoints.DAILY}/{eod_code}?api_token={api_key}&fmt=json"
+    url = f"{APIEndpoints.DAILY}/{eodhd_exchange}?api_token={api_key}&fmt=json"
     
     # Make API request using existing helper
     data = _make_api_request(url)
     if not data:
-        logger.warning(f"No daily price data retrieved for {exchange_code} using EoDHD code {eod_code}")
+        logger.warning(f"No daily price data retrieved for {exchange} using EoDHD code {eodhd_exchange}")
         return None
         
     try:
         # Convert to DataFrame and process
         df = pd.DataFrame(data)
+                
         # Create Ticker_ID and clean columns
-        df['Ticker_ID'] = df['code'] + f'_{exchange_code}'
-        df = df.loc[df['exchange_short_name'] == exchange_code]
+        df['Ticker_ID'] = df['code'] + f'_{exchange}'
         df.columns = PRICE_COLUMNS
         df = df[PRICE_COLUMNS_SORTED]  # Specifying column order to support DB upload
-        return df[PRICE_COLUMNS]
+        return df
         
     except Exception as e:
-        logger.error(f"Failed to process daily prices for {exchange_code} retrieved using {eod_code}: {e}", exc_info=True)
+        logger.error(f"Failed to process daily prices for {exchange} retrieved using {eodhd_exchange}: {e}", exc_info=True)
         return None
     

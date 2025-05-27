@@ -1,2 +1,0 @@
-Datetime:2025-05-26 22:35:08,578 - Level:ERROR - Module:database_utils - Function:db_connection - Message:Database error: 1054 (42S22): Unknown column 'Exchange' in 'INSERT INTO'
-Datetime:2025-05-26 22:35:08,590 - Level:ERROR - Module:initialise_database - Function:main - Message:Database initialization failed: 1054 (42S22): Unknown column 'Exchange' in 'INSERT INTO'

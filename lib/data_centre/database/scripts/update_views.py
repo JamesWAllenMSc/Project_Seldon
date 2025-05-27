@@ -39,9 +39,9 @@ def update_close_price_view(access: dict) -> None:
     try:
         # Get list of exchanges
         exchanges = pd.DataFrame(
-            database_utils.retrieve_table(access, "SELECT Code FROM global_exchanges;"),
-            columns=['Code']
-        )['Code'].tolist()
+            database_utils.retrieve_table(access, "SELECT Exchange FROM global_exchanges;"),
+            columns=['Exchange']
+        )['Exchange'].tolist()
         
         exchanges_stats = {
             'checked': 0,

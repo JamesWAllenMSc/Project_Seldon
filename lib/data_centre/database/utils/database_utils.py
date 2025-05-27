@@ -54,9 +54,10 @@ def add_stock_price(global_price_df, exchange, year, access):
     """ Takes a dataframe of stock prices and adds them to the database
     --------------------------------------------------------------------------
     """
+
     # FORMAT STOCK PRICE DATA FOR UPLOAD TO SELDON_DB      
     global_prices_columns = global_price_df.columns.values # Get column names from stock price data
-    columns = ', '.join(global_prices_columns) # Columns prepped 
+    columns = ', '.join(global_prices_columns) # Columns prepped
     global_prices = str(global_price_df.values.tolist()) # Convert stock price data to list
     global_prices = global_prices.replace('[', '(').replace(']', ')') # Replace brackets with parentheses
     global_prices = global_prices[1:-1] # Remove first and last characters (brackets)

@@ -22,14 +22,14 @@ logger = logger_factory.get_logger('database', module_name=__name__)
 
 # Constants
 TICKER_COLUMNS = [
-    'Ticker_ID', 'Code', 'Name', 'Country', 'Exchange', 'EoDHD_Exchange',
+    'Ticker_ID', 'Ticker', 'Name', 'Country', 'Exchange', 'EoDHD_Exchange',
     'Currency', 'Type', 'Isin', 'Source', 'Date_Updated'
 ]
 
 CREATE_TABLE_QUERY = """
     CREATE TABLE IF NOT EXISTS global_tickers (
         Ticker_ID VARCHAR(255),
-        Code VARCHAR(255),
+        Ticker VARCHAR(255),
         Name VARCHAR(255),
         Country VARCHAR(255),
         Exchange VARCHAR(255),
