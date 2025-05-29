@@ -99,7 +99,7 @@ def _make_api_request(url: str) -> Optional[Dict[str, Any]]:
         return None
 
 
-def retrieve_tickers(api_key: str, exchange: str) -> Optional[pd.DataFrame]:
+def retrieve_tickers(api_key: str, eod_exchange: str) -> Optional[pd.DataFrame]:
     """Retrieve ticker data for a specific exchange.
     
     Args:
@@ -109,7 +109,7 @@ def retrieve_tickers(api_key: str, exchange: str) -> Optional[pd.DataFrame]:
     Returns:
         DataFrame containing ticker data or None if request fails
     """
-    url = f"{APIEndpoints.TICKERS}/{exchange}?api_token={api_key}&fmt=json"
+    url = f"{APIEndpoints.TICKERS}/{eod_exchange}?api_token={api_key}&fmt=json"
     data = _make_api_request(url)
     if not data or not isinstance(data, list):
         return None
@@ -117,16 +117,16 @@ def retrieve_tickers(api_key: str, exchange: str) -> Optional[pd.DataFrame]:
     try:
         df = pd.DataFrame(data)
         df.rename(columns={'Code': 'Ticker'}, inplace=True)
-        df['Source'] = f'EoDHD.com - Exchange {exchange}'
+        df['Source'] = None # f'EoDHD.com - Exchange {eod_exchange}'
         df['Date_Updated'] = datetime.datetime.now()
-        df['Ticker_ID'] = df['Ticker'] + f'_{exchange}'
+        df['Ticker_ID'] = None # df['Ticker'] + f'_{eod_exchange}'
         df['EoDHD_Exchange']=df['Exchange'].apply(lambda x: 'US' if x in list(US_EXCHANGES.keys()) else x)
 
         
         return df[['Ticker_ID', 'Ticker', 'Name', 'Country', 'Exchange', 'EoDHD_Exchange',
                   'Currency', 'Type', 'Isin', 'Source', 'Date_Updated']]
     except Exception as e:
-        logger.error(f"Failed to process ticker data for {exchange}: {e}")
+        logger.error(f"Failed to process ticker data for {eod_exchange}: {e}")
         return None
 
 

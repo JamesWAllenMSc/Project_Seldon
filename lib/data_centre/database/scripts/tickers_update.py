@@ -45,9 +45,9 @@ CREATE_TABLE_QUERY = """
 
 def _get_exchange_list(db_config: Dict[str, Any]) -> List[str]:
     """Retrieve list of exchange codes from database."""
-    query = 'SELECT Exchange FROM global_exchanges;'
+    query = 'SELECT Exchange, EoDHD_Exchange FROM global_exchanges;'
     table = database_utils.retrieve_table(db_config, query)
-    return pd.DataFrame(table, columns=['Code'])['Code'].tolist()
+    return pd.DataFrame(table, columns=['Exchange', 'EoDHD_Exchange'])
 
 def _get_db_tickers(db_config: Dict[str, Any], exchange: str) -> pd.DataFrame:
     """Retrieve tickers for specific exchange from database."""
@@ -81,31 +81,36 @@ def tickers_update() -> None:
         database_utils.execute_query(DB_CONFIG, CREATE_TABLE_QUERY)
         logger.debug("Ensured global_tickers table exists")
 
-        # Get exchange list from database
+        # Get exchange list from database containing exhchange and eod_exchange
         exchange_list = _get_exchange_list(DB_CONFIG)
         logger.debug(f"Retrieved {len(exchange_list)} exchanges from database")
-
         total_tickers = 0
-        for exchange_code in exchange_list:
+        for exchanges in exchange_list.itertuples(): # Iterate over exchenge list from database
+            exchange=exchanges.Exchange
+            eod_exchange = exchanges.EoDHD_Exchange
             try:
                 # Get current database tickers
-                db_tickers = _get_db_tickers(DB_CONFIG, exchange_code)
-                logger.debug(f"Retrieved tickers for exchange {exchange_code}")
+                db_tickers = _get_db_tickers(DB_CONFIG, exchange)
+                logger.debug(f"Retrieved tickers for exchange {exchange}")
 
                 # Get EODHD tickers
                 eod_tickers = eodhd_utils.retrieve_tickers(
                     EODHD_CONFIG['api_key'], 
-                    exchange_code
+                    eod_exchange
                 )
-
+                print(eod_tickers.head())
+                eod_tickers = eod_tickers[eod_tickers['Exchange'] == exchange]
+                eod_tickers['Source'] = f'EoDHD.com - Exchange {exchange}'
+                eod_tickers['Ticker_ID'] = eod_tickers['Ticker'] + f'_{exchange}'
+                print(eod_tickers.head())
                 # Skip if no data retrieved
                 if eod_tickers is None:
-                    logger.warning(f"No ticker data for exchange {exchange_code}")
+                    logger.warning(f"No ticker data for exchange {exchange} requested using ({eod_exchange})")
                     continue
 
                 # Validate data structure
                 if not np.array_equal(eod_tickers.columns.values, TICKER_COLUMNS):
-                    logger.error(f"Column mismatch for exchange {exchange_code}")
+                    logger.error(f"Column mismatch for exchange {exchange} requested using ({eod_exchange})")
                     continue
 
                 # Find and add missing tickers
@@ -116,10 +121,10 @@ def tickers_update() -> None:
                     query = f'INSERT INTO global_tickers ({columns}) VALUES {values};'
                     database_utils.execute_query(DB_CONFIG, query)
                     total_tickers += len(missing_tickers)
-                    logger.debug(f"Added {len(missing_tickers)} tickers for {exchange_code}")
+                    logger.debug(f"Added {len(missing_tickers)} tickers for {exchange} requested using ({eod_exchange})")
 
             except Exception as e:
-                logger.error(f"Error processing exchange {exchange_code}: {str(e)}")
+                logger.error(f"Error processing exchange {exchange} requested using ({eod_exchange}): {str(e)}")
                 continue
 
         if total_tickers > 0:
