@@ -4,7 +4,7 @@ This module handles the daily updates of price data for all tickers across excha
 """
 
 # Standard library imports
-from datetime import datetime
+from datetime import datetime, date
 from typing import List, Optional, Dict, Any
 
 # Third-party imports
@@ -36,17 +36,9 @@ PRICE_TABLE_SCHEMA = """
     );
 """
 
-PRICE_QUERY = """
-    SELECT 
-        global_tickers.Ticker,
-        global_tickers.Exchange,
-        prices_{exchange}_{year}.*
-    FROM global_tickers
-    JOIN prices_{exchange}_{year} 
-        ON global_tickers.Ticker_ID = prices_{exchange}_{year}.Ticker_ID
-    WHERE global_tickers.Exchange = '{exchange}'
-    AND prices_{exchange}_{year}.Date >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)
-    ORDER BY prices_{exchange}_{year}.Date DESC;
+LATEST_PRICE_DATE_QUERY = """
+    SELECT MAX(Date) AS LatestDate
+    FROM prices_{exchange}_{year};
 """
 
 TICKER_COLUMNS = [
@@ -72,26 +64,30 @@ def _ensure_price_table(exchange: str, year: int) -> None:
     query = PRICE_TABLE_SCHEMA.format(exchange=exchange, year=year)
     database_utils.execute_query(DB_CONFIG, query)
 
-def _get_latest_price(exchange: str, year: int) -> Optional[datetime.date]:
-    """Get the most recent price date for an exchange from the database."""
-    query = PRICE_QUERY.format(exchange=exchange, year=year)
-    data = database_utils.retrieve_table(DB_CONFIG, query)
+def _get_latest_price_date(exchange: str, year: int) -> Optional[datetime.date]:
+    """Get the most recent price date for an exchange from the database.
     
-    if not data:
-        return None
+    Args:
+        exchange (str): Exchange code
+        year (int): Year to check
         
-    df = pd.DataFrame(data, columns=[
-        'Ticker', 'Exchange', 'Ticker_ID', 'Date', 'Open', 'High', 
-        'Low', 'Close', 'Adjusted_Close', 'Volume'
-    ])
-    return df['Date'].max()
-
+    Returns:
+        Optional[date]: The latest price date if exists, None otherwise
+    """
+    
+    query = LATEST_PRICE_DATE_QUERY.format(exchange=exchange, year=year)
+    latest_price_date = database_utils.retrieve_table(DB_CONFIG, query)
+    # Handle empty list or None result
+    if not latest_price_date or latest_price_date[0][0] is None:
+        return None
+    return pd.to_datetime(latest_price_date[0][0]).date()
+    
 
 def _get_db_tickers(db_config: Dict[str, Any], exchange: str) -> pd.DataFrame:
     """Retrieve tickers for specific exchange from database."""
-    query = f"SELECT * FROM global_tickers WHERE Exchange='{exchange}';"
+    query = f"SELECT Ticker FROM global_tickers WHERE Exchange='{exchange}';"
     table = database_utils.retrieve_table(db_config, query)
-    return pd.DataFrame(table, columns=TICKER_COLUMNS)
+    return pd.DataFrame(table, columns=['Ticker'])
 
 
 def daily_price_update() -> None:
@@ -100,53 +96,55 @@ def daily_price_update() -> None:
 
     # Get code and eod_code from global exchanges table iterate over
     exchanges = _get_exchange_codes()
-    for exchange in exchanges.itertuples():
-        exchange_code = exchange.Exchange
-        eod_code = exchange.EoDHD_Exchange
+    
+    for exchange_code in exchanges.itertuples():
+        
+        exchange = exchange_code.Exchange
+        eod_exchange = exchange_code.EoDHD_Exchange
+        
         try:
-            # Get new price data from EoDHD for whole exchange
+            # Get new price data from EoDHD for whole exchange. US stocks ('NASDAQ', 'NYSE') handled as 'US'
             new_prices = eodhd_utils.retrieve_daily_price(
-                eod_code, exchange_code,
+                eod_exchange, exchange,
                 EODHD_CONFIG['api_key']
             )
+            tickers = _get_db_tickers(DB_CONFIG, exchange)
+            df = new_prices.merge(tickers, on='Ticker', how='left')
             
-            tickers = _get_db_tickers(DB_CONFIG, eod_code)
+            df['Ticker_ID'] = f'{df['Ticker'].iloc[0]}_{exchange}' 
+            new_prices_final = df[PRICE_COLUMNS_SORTED]
             
-            df = new_prices.merge(tickers[['Ticker', 'Exchange']], on='Ticker', how='left')
-            df = df[PRICE_COLUMNS_SORTED]
-            print(df)
-           
-            if new_prices is None:
-                logger.warning(f"No new price data for {exchange_code}, using EoD Code {eod_code}")
+            if new_prices_final is None:
+                logger.warning(f"No new price data for {exchange}, using EoD Code {eod_exchange}")
                 continue
             
             new_price_date = pd.to_datetime(new_prices['Date'].iloc[0]).date()
             # Ensure price table exists
-            _ensure_price_table(exchange_code, current_year)
-            
-
-            # Get latest existing price
-            latest_price_date = _get_latest_price(exchange_code, current_year)
-            print(latest_price_date)
+            _ensure_price_table(exchange, current_year)
+           
+            # Get latest existing price data from local database
+            latest_price_date = _get_latest_price_date(exchange, current_year)
+                        
             if latest_price_date is None:
                 logger.info(f"No existing prices for {exchange}. Consider historical update")
                 continue
-                
+            
             # Update if new data available
             if new_price_date > latest_price_date:
-                print('YES')
+                              
                 database_utils.add_stock_price(
-                    new_prices, 
-                    exchange_code, 
+                    new_prices_final, 
+                    exchange, 
                     current_year, 
                     DB_CONFIG
                 )
-                logger.info(f"Updated prices for {exchange_code} to {new_price_date}")
+                logger.info(f"Updated prices for {exchange} for {new_price_date}")
             else:
-                logger.info(f"Prices for {exchange_code} already up to date")
+                logger.info(f"Prices for {exchange} already up to date")
+                
                 
         except Exception as e:
-            logger.error(f"Error updating {exchange_code} using EoD Code {eod_code}: {str(e)}", exc_info=True)
+            logger.error(f"Error updating {exchange} using EoD Code {eod_exchange}: {str(e)}", exc_info=True)
             continue
 
 if __name__ == "__main__":

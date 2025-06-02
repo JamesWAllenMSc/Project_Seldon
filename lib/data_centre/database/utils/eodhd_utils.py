@@ -26,6 +26,12 @@ PRICE_COLUMNS = [
     'Volume', 'Ticker_ID'
 ]
 
+REWRITE_PRICE_COLUMNS = [
+    'Ticker', 'Exchange', 'Date', 'Open', 'High', 'Low',
+    'Close', 'Adjusted_Close', 'Volume', 'Ticker_ID', 'Source',
+    'Date_Updated', 'EoDHD_Exchange'
+]
+
 US_EXCHANGES = {
     'NYSE': {
         'Name': 'New York Stock Exchange',
@@ -206,11 +212,14 @@ def retrieve_daily_price(eodhd_exchange: str, exchange: str, api_key: str) -> Op
     try:
         # Convert to DataFrame and process
         df = pd.DataFrame(data)
-                
         # Create Ticker_ID and clean columns
         df['Ticker_ID'] = df['code'] + f'_{exchange}'
-        df.columns = PRICE_COLUMNS
-        df = df[PRICE_COLUMNS_SORTED]  # Specifying column order to support DB upload
+        df.rename(columns={'code': 'Ticker', 'exchange_short_name':'Exchange'}, inplace=True)
+        df['Source'] = f'EoDHD.com - Exchange {eodhd_exchange}'
+        df['Date_Updated'] = datetime.datetime.now()
+        df['Ticker_ID'] = None # df['Ticker'] + f'_{eod_exchange}'
+        df['EoDHD_Exchange']=df['Exchange'].apply(lambda x: 'US' if x in list(US_EXCHANGES.keys()) else x)
+        df.columns = REWRITE_PRICE_COLUMNS
         return df
         
     except Exception as e:

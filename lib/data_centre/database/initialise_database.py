@@ -44,10 +44,10 @@ def main():
         # Update core data
         exchanges_update(DB_CONFIG)
         tickers_update()
-        #populate_price_history()
+        populate_price_history()
 
         # Refresh views
-        #update_all_views(DB_CONFIG)
+        update_all_views(DB_CONFIG)
 
         logger.info("Database initialization completed successfully")
         return 0

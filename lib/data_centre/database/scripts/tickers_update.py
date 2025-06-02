@@ -98,11 +98,14 @@ def tickers_update() -> None:
                     EODHD_CONFIG['api_key'], 
                     eod_exchange
                 )
-                print(eod_tickers.head())
+                
+                # Filter by exchange passed fom database. Required to ensure
+                # that we only process tickers for the current exchange and
+                # not all tickers for 'US' stocks when passed 
                 eod_tickers = eod_tickers[eod_tickers['Exchange'] == exchange]
+
                 eod_tickers['Source'] = f'EoDHD.com - Exchange {exchange}'
                 eod_tickers['Ticker_ID'] = eod_tickers['Ticker'] + f'_{exchange}'
-                print(eod_tickers.head())
                 # Skip if no data retrieved
                 if eod_tickers is None:
                     logger.warning(f"No ticker data for exchange {exchange} requested using ({eod_exchange})")
