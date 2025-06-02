@@ -22,7 +22,6 @@ from lib.data_centre.database.scripts import (exchanges_update,
 
 logger = logger_factory.get_logger('database', module_name=__name__)
 
-daily_price_update()
 
 def main():
     """ Main function to schedule tasks using APScheduler """
@@ -39,20 +38,20 @@ def main():
     # Schedule weekly tasks - Note: Don't call the functions, just pass them
     scheduler.add_job(
         lambda: exchanges_update(DB_CONFIG), 
-        #CronTrigger(day_of_week='sun', hour=2, minute=0)
-        CronTrigger(minute='*/3')
+        CronTrigger(day_of_week='sun', hour=2, minute=0)
+        
     )
 
     scheduler.add_job(
         tickers_update, 
-        #CronTrigger(day_of_week='sun', hour=2, minute=15)
-        CronTrigger(minute='*/4')
+        CronTrigger(day_of_week='sun', hour=2, minute=15)
+        
     )
 
     scheduler.add_job(
         lambda: update_all_views(DB_CONFIG), 
-        #CronTrigger(day_of_week='sun', hour=2, minute=30)
-        CronTrigger(minute='*/5')
+        CronTrigger(day_of_week='sun', hour=2, minute=30)
+        
     )
 
     try:
