@@ -30,10 +30,10 @@ def main():
     # Create a BackgroundScheduler
     scheduler = BackgroundScheduler()
 
-    # Schedule `run_daily_updates` at 1:00 AM and 1:00 PM every day
-    #scheduler.add_job(daily_price_update, CronTrigger(hour=1, minute=0))
-    #scheduler.add_job(daily_price_update, CronTrigger(hour=13, minute=0))
-    scheduler.add_job(daily_price_update, CronTrigger(minute='*/2'))
+    # Schedule `daily_price_updates` at 1:00 AM and 1:00 PM every day
+    scheduler.add_job(daily_price_update, CronTrigger(hour=1, minute=0))
+    scheduler.add_job(daily_price_update, CronTrigger(hour=13, minute=0))
+    
 
     # Schedule weekly tasks - Note: Don't call the functions, just pass them
     scheduler.add_job(

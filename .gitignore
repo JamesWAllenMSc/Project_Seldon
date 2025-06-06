@@ -12,3 +12,6 @@
 
 # Initialization logs
 nohup.out
+
+# Logs to remove perstitent conflicts
+Logs/
