@@ -138,7 +138,7 @@ def daily_price_update() -> None:
                     current_year, 
                     DB_CONFIG
                 )
-                logger.info(f"Updated prices for {exchange} for {new_price_date}")
+                logger.debug(f"Updated prices for {exchange} for {new_price_date}")
             else:
                 logger.info(f"Prices for {exchange} already up to date")
                 
